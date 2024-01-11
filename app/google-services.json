@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "857155478341",
+    "firebase_url": "https://pak-drive-451a3-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "pak-drive-451a3",
+    "storage_bucket": "pak-drive-451a3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:857155478341:android:c6f8c1220bf64c6808942c",
+        "android_client_info": {
+          "package_name": "com.pakdrive"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXle_0xQkE87q4NGF_VveRr6Dw1wRHcyQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:857155478341:android:367d4c77a419f7a708942c",
+        "android_client_info": {
+          "package_name": "com.pakdrivefordriver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXle_0xQkE87q4NGF_VveRr6Dw1wRHcyQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
