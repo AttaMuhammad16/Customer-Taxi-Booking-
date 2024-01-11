@@ -154,7 +154,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
             var internetChecker=async { InternetChecker().isInternetConnectedWithPackage(this@MainActivity) }
             if (internetChecker.await()){
                 onGoogleMap = googleMap
-                googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this@MainActivity, R.raw.map_style))
+//                googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this@MainActivity, R.raw.map_style))
 
                 onGoogleMap.uiSettings.apply {
                     isMapToolbarEnabled = false
@@ -291,6 +291,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                     }
                     time=timeDiffered.await()
                     distance=distanceDiffered.await()
+
                     var listOfDrivers=async {customerViewModel.getDriversInRadius(start,1000.0)  }.await()
 
                     if (listOfDrivers.isEmpty()){
@@ -299,7 +300,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                         showDriversOnMap(onGoogleMap, start, priceRange, 1000.0, listOfDrivers)
                         GlobalScope.launch(Dispatchers.IO) {
                             // request model.
-                            customerViewModel.uploadRequestModel(RequestModel(currentUser!!.uid,priceRange.toString(),start.toString(),end.toString()))
+                            customerViewModel.uploadRequestModel(RequestModel(customerUid = currentUser!!.uid, far = priceRange.toString(),pickUpLatLang=start.toString(),destinationLatLang=end.toString(),comment=comment, timeTaken = time, distance = distance.toString()))
 
                             customerViewModel.updateCustomerStartEndLatLang(start.toString(),end.toString())
                         }

@@ -40,7 +40,8 @@ object Utils {
     const val EMAIL_NODE = "email"
     const val CUSTOMER = "customer"
     const val DRIVER = "driver"
-    const val REQUESTSNODE = "request"
+
+    const val REQUESTSFORDRIVERS = "requestForDrivers"
 
     const val VERIFICATION_NODE = "verificationProcess"
     const val DRIVER_LAT_NODE = "lat"
@@ -71,11 +72,9 @@ object Utils {
     const val CUSTOMERENDLATLANG="endLatLang"
     const val approved:String="null"
 
-
     fun isLocationPermissionGranted(context:Activity): Boolean {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
-
 
     fun statusBarColor(context: Activity,color:Int=R.color.tool_color){
         context.window.statusBarColor=ContextCompat.getColor(context,color)
@@ -93,13 +92,11 @@ object Utils {
         context.startActivityForResult(intent,requestCode)
     }
 
-
     fun myToast(context: Activity,message:String,length:Int=Toast.LENGTH_SHORT){
         CoroutineScope(Dispatchers.Main).launch {
             Toast.makeText(context, message,length).show()
         }
     }
-
 
     fun resultChecker(result:MyResult, context: Activity){
         when(result){
@@ -115,7 +112,6 @@ object Utils {
             }
         }
     }
-
 
     fun isValidPakistaniPhoneNumber(phoneNumber: String): Boolean {
         return if (phoneNumber.startsWith("+923")){

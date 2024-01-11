@@ -3,6 +3,7 @@ package com.pakdrive.ui.viewmodels
 import android.app.Activity
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -90,6 +91,7 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
 
     suspend fun uploadRequestModel(requestModel: RequestModel){
         customerRepo.uploadRequestModel(requestModel)
+        Log.i("TAG", "uploadRequestModel:called")
     }
 
     fun updateCustomerStartEndLatLang(startLatLang:String,endLatLang:String){

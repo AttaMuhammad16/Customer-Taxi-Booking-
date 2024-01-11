@@ -239,6 +239,7 @@ class CustomerBottomSheet : BottomSheetDialogFragment() {
                         var distanceDiffered= async { customerViewModel.calculateDistanceForRoute(start!!,end!!, apiKey,TravelMode.DRIVING)?:0.0 }
                         var distanceInKM=distanceDiffered.await()
                         var price=calculatePrice(distanceInKM,pricePerKm).toInt()
+                        priceRageEdt.setText("")
                         priceRageEdt.setText("$price")
                         Utils.dismissProgressDialog(dialog)
                         pd.visibility=View.GONE

@@ -12,7 +12,6 @@ data class DriverModel(
     var lat:Double?=0.0,
     var lang:Double?=0.0,
     var driverFCMToken:String="",
-    var rideAccepted:Boolean=false,
     var carDetails:String="",
     var far:String="",
     var totalRating:Int=0,

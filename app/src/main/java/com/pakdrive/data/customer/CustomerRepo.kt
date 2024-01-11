@@ -25,5 +25,4 @@ interface CustomerRepo {
     suspend fun updateCustomerStartEndLatLang(startLatLang:String,endLatLang:String)
 
 
-
 }

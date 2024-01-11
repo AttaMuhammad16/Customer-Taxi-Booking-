@@ -33,10 +33,12 @@ class FireBaseMessageService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        super.onNewToken(token)
-        CoroutineScope(Dispatchers.IO).launch {
-            if (InternetChecker().isInternetConnectedWithPackage(this@FireBaseMessageService)){
-                Utils.updateFCMToken(Utils.CUSTOMER,Utils.CUSTOMER_TOKEN_NODE,token,auth)
+        if (auth.currentUser!=null){
+            super.onNewToken(token)
+            CoroutineScope(Dispatchers.IO).launch {
+                if (InternetChecker().isInternetConnectedWithPackage(this@FireBaseMessageService)&&auth.currentUser!=null){
+                    Utils.updateFCMToken(Utils.CUSTOMER,Utils.CUSTOMER_TOKEN_NODE,token,auth)
+                }
             }
         }
     }

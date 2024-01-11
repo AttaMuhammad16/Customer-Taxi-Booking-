@@ -3,6 +3,7 @@ package com.pakdrive.data.customer
 import android.app.Activity
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import com.directions.route.AbstractRouting
 import com.directions.route.Routing
@@ -187,7 +188,8 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
     override suspend fun uploadRequestModel(requestModel: RequestModel) {
         var currentUser=auth.currentUser
         if (currentUser!=null){
-            databaseReference.child(Utils.REQUESTSNODE).child(currentUser.uid).setValue(requestModel)
+            databaseReference.child(Utils.REQUESTSFORDRIVERS).child(currentUser.uid).setValue(requestModel)
+            Log.i("TAG", "uploadRequestModel:called")
         }
     }
 
