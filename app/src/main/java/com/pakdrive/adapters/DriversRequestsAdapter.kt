@@ -2,6 +2,7 @@ package com.pakdrive.adapters
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +15,7 @@ import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
 import de.hdodenhof.circleimageview.CircleImageView
 
-class DriversRequestsAdapter(private val requestList: ArrayList<DriverModel>, val customerModel:CustomerModel, var context: Activity) : RecyclerView.Adapter<DriversRequestsAdapter.RequestViewHolder>() {
+class DriversRequestsAdapter(private val requestList: ArrayList<DriverModel>, var context: Activity) : RecyclerView.Adapter<DriversRequestsAdapter.RequestViewHolder>() {
     class RequestViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         var profileImage: CircleImageView = view.findViewById(R.id.profileImage)
         var driverName: TextView = view.findViewById(R.id.driverName)
@@ -35,7 +36,7 @@ class DriversRequestsAdapter(private val requestList: ArrayList<DriverModel>, va
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: RequestViewHolder, position: Int) {
         val data = requestList[position]
-        Glide.with(context).load(data.profileImageUrl).error(R.drawable.person_with_out_circle).into(holder.profileImage)
+        Glide.with(context).load(data.profileImageUrl).placeholder(R.drawable.person_with_out_circle).into(holder.profileImage)
         holder.driverName.text=data.userName
         holder.vehicleName.text=data.carDetails
         holder.priceTv.text=data.far // update when request place

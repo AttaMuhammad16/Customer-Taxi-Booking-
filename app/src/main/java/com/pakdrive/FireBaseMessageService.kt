@@ -25,8 +25,9 @@ import javax.inject.Inject
 
 @SuppressLint("MissingFirebaseInstanceTokenRefresh")
 class FireBaseMessageService : FirebaseMessagingService() {
-    @Inject
-    lateinit var auth: FirebaseAuth
+    val auth: FirebaseAuth by lazy{
+        FirebaseAuth.getInstance()
+    }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)

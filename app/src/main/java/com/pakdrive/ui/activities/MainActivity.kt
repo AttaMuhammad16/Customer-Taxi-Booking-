@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.directions.route.Route
@@ -59,9 +60,10 @@ import com.pakdrive.Utils.isLocationPermissionGranted
 import com.pakdrive.Utils.myToast
 import com.pakdrive.Utils.requestLocationPermission
 import com.pakdrive.databinding.ActivityMainBinding
+import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
 import com.pakdrive.models.RequestModel
-import com.pakdrive.service.SendNotificationFromCustomer
+import com.pakdrive.service.notification.NotificationManager.Companion.sendNotification
 import com.pakdrive.ui.fragments.CustomerBottomSheet
 import com.pakdrive.ui.fragments.UserInputDetails
 import com.pakdrive.ui.viewmodels.CustomerViewModel
@@ -112,7 +114,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
     lateinit var auth:FirebaseAuth
     lateinit var currentUser:FirebaseUser
     lateinit var  locationManager:LocationManager
-
+    var radius:Double=1000.0
+    lateinit var model: CustomerModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -147,6 +150,32 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
             bottomSheetFragment = CustomerBottomSheet()
             bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
         }
+        lifecycleScope.launch {
+            val customerDiffered=async { customerViewModel.getUser(CUSTOMER,currentUser.uid) }
+            model= customerDiffered.await()!!
+        }
+
+
+        binding.menuImage.setOnClickListener {
+            if (binding.drawer.isDrawerOpen(GravityCompat.START)) {
+                binding.drawer.closeDrawer(GravityCompat.START)
+            } else {
+                binding.drawer.openDrawer(GravityCompat.START)
+            }
+        }
+
+        lifecycleScope.launch { // drawer item
+            customerViewModel.receivedOffers().collect{
+                binding.numberOfRequests.text=it.size.toString()
+            }
+        }
+
+        binding.rideRequestLinear.setOnClickListener {// drawer item
+            startActivity(Intent(this@MainActivity,DriverRequestsViewActivity::class.java))
+        }
+
+
+
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -181,20 +210,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
         }
     }
 
-    fun showDriversOnMap(map: GoogleMap,start: LatLng,priceRange: Int,radiusOfCircle:Double=1000.0,listOfDriver:ArrayList<DriverModel>) {
+    fun showDriversOnMap(map: GoogleMap,start: LatLng,priceRange: Int,listOfDriver:ArrayList<DriverModel>) {
         try {
             lifecycleScope.launch {
 
                 map.apply {
                     currentCircle?.remove()
-                    currentCircle = addCircle(CircleOptions().center(start).radius(radiusOfCircle).strokeColor(Color.WHITE).strokeWidth(5f))
+                    currentCircle = addCircle(CircleOptions().center(start).radius(radius).strokeColor(Color.WHITE).strokeWidth(5f))
                     val cameraUpdate = CameraUpdateFactory.newLatLngZoom(start, 14f)
                     animateCamera(cameraUpdate)
                 }
                 removePreviousMarkers(markersList)
 
-                val customerDiffered=async { customerViewModel.getCustomer() }
-                val customerModel=customerDiffered.await()
+                listOfTokens.clear()
 
                 listOfDriver.forEach { it ->
                     val lat=it.lat
@@ -205,20 +233,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                     markersList.add(marker?:Marker(null))
                     listOfTokens.add(it.driverFCMToken)
                 }
-
-                val km=radiusOfCircle/1000.0
-                val notificationTitle = "PakDrive Ride Notification"
-                val notificationMessage = buildString {
-                    append("Price: $priceRange")
-                    appendLine()
-                    append("Comment: $comment")
-                    appendLine()
-                    append("Time: $time")
-                    appendLine()
-                    append("Distance: $distance KM")
-                }
-
-                SendNotificationFromCustomer().sendNotifyFromCustomer(notificationTitle, notificationMessage,listOfTokens,customerModel?.uid!!,comment!!,time,distance.toString(),priceRange.toString())
+                val km=radius/1000.0
+                sendNotification(listOfTokens,model,comment?:"",time,distance.toString(),priceRange.toString())
                 Toast.makeText(this@MainActivity, "Rides in $km KM Radius", Toast.LENGTH_LONG).show()
                 delay(4000)
                 startActivity(Intent(this@MainActivity,DriverRequestsViewActivity::class.java))
@@ -227,8 +243,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
         } catch (e: SecurityException) {
             Log.e("Exception: %s", e.message, e)
         }
-
     }
+
     override fun onPolylineClick(polyline: Polyline) {
         TODO("Not yet implemented")
     }
@@ -281,8 +297,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                 lifecycleScope.launch {
 
                     val timeDiffered=async(Dispatchers.IO) {
-                        customerViewModel.calculateEstimatedTimeForRoute(start,end, apiKey,
-                            TravelMode.DRIVING)?:"none"
+                        customerViewModel.calculateEstimatedTimeForRoute(start,end, apiKey, TravelMode.DRIVING)?:"none"
                     }
 
                     val distanceDiffered=async(Dispatchers.IO) {
@@ -292,16 +307,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                     time=timeDiffered.await()
                     distance=distanceDiffered.await()
 
-                    var listOfDrivers=async {customerViewModel.getDriversInRadius(start,1000.0)  }.await()
+                    var listOfDrivers=async {customerViewModel.getDriversInRadius(start,radius)  }.await()
 
                     if (listOfDrivers.isEmpty()){
                         myToast(this@MainActivity,"Did not find any drivers. Please consider changing your location.",Toast.LENGTH_LONG)
                     }else{
-                        showDriversOnMap(onGoogleMap, start, priceRange, 1000.0, listOfDrivers)
+                        showDriversOnMap(onGoogleMap, start, priceRange, listOfDrivers)
+
                         GlobalScope.launch(Dispatchers.IO) {
                             // request model.
-                            customerViewModel.uploadRequestModel(RequestModel(customerUid = currentUser!!.uid, far = priceRange.toString(),pickUpLatLang=start.toString(),destinationLatLang=end.toString(),comment=comment, timeTaken = time, distance = distance.toString()))
-
+                            var model=RequestModel(customerUid = currentUser!!.uid, far = priceRange.toString(),pickUpLatLang=start.toString(),destinationLatLang=end.toString(),comment=comment, timeTaken = time, distance = distance.toString())
+                            listOfDrivers.forEach {
+                                customerViewModel.uploadRequestModel(model,it.uid!!)
+                            }
                             customerViewModel.updateCustomerStartEndLatLang(start.toString(),end.toString())
                         }
                     }

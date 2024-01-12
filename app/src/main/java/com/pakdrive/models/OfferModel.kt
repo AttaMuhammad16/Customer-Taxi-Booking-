@@ -1,6 +1,6 @@
 package com.pakdrive.models
 
-class DriversRequestModel(
+data class OfferModel(
     var driverUid:String="",
     var far:String="",
 )

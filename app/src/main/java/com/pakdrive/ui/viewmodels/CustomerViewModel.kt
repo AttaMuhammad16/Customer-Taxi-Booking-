@@ -15,9 +15,11 @@ import com.pakdrive.MyResult
 import com.pakdrive.data.customer.CustomerRepo
 import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
+import com.pakdrive.models.OfferModel
 import com.pakdrive.models.RequestModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -81,16 +83,16 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
 
 
     // read
-    suspend fun getCustomer():CustomerModel?{
-        return customerRepo.readCustomer()
+    suspend fun getUser(role:String,uid:String):CustomerModel?{
+        return customerRepo.readUser(role, uid)
     }
 
     suspend fun  getDriversInRadius(startLatLang:LatLng,radius:Double):ArrayList<DriverModel>{
         return customerRepo.driversInRadius(startLatLang,radius)
     }
 
-    suspend fun uploadRequestModel(requestModel: RequestModel){
-        customerRepo.uploadRequestModel(requestModel)
+    suspend fun uploadRequestModel(requestModel: RequestModel,driverUid:String){
+        customerRepo.uploadRequestModel(requestModel,driverUid)
         Log.i("TAG", "uploadRequestModel:called")
     }
 
@@ -98,6 +100,14 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
         viewModelScope.launch(Dispatchers.IO) {
             customerRepo.updateCustomerStartEndLatLang(startLatLang, endLatLang)
         }
+    }
+
+    suspend fun receivedOffers():Flow<ArrayList<OfferModel>>{
+        return customerRepo.receiveOffers()
+    }
+
+    suspend fun readingDriver(uid: String):DriverModel?{
+        return customerRepo.readingDriver(uid)
     }
 
 }

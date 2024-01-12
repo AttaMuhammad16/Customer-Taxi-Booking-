@@ -6,6 +6,11 @@
     <data>
 
     </data>
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -15,6 +20,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context=".ui.activities.MainActivity">
+
+            <ImageView
+                android:id="@+id/menuImage"
+                android:layout_width="@dimen/_27sdp"
+                android:layout_height="@dimen/_27sdp"
+                android:layout_margin="@dimen/_10sdp"
+                android:elevation="@dimen/_5sdp"
+                android:src="@drawable/baseline_menu_24"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/widgetscolor" />
 
             <include
                 android:id="@+id/bottom_sheet"
@@ -66,4 +82,96 @@
                 app:layout_constraintTop_toTopOf="@+id/mapFragment" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/navDrawer"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:backgroundTint="@color/widgetscolor"
+            android:fitsSystemWindows="true"
+            app:elevation="@dimen/_20sdp"
+            app:itemIconTint="@color/white"
+            app:itemTextColor="@color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <com.airbnb.lottie.LottieAnimationView
+                        android:id="@+id/jk"
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:layout_marginTop="20dp"
+                        app:layout_constraintHorizontal_bias="0.498"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:lottie_autoPlay="true"
+                        app:lottie_rawRes="@raw/taxi"
+                        app:lottie_loop="true" />
+
+                    <TextView
+                        android:id="@+id/textView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:gravity="center"
+                        android:textColor="#FFFFFF"
+                        android:text="Pak Drives"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/jk" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#1E1E1E"
+                        android:layout_marginTop="5dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <LinearLayout
+                    android:id="@+id/rideRequestLinear"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:layout_marginEnd="@dimen/_10sdp"                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/baseline_search_24"
+                        app:tint="@color/white" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Driver Offers"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_15sdp"
+                        android:paddingStart="16dp" />
+                    <TextView
+                        android:id="@+id/numberOfRequests"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/_15sdp"
+                        android:textColor="@color/white"
+                        android:text="0" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.navigation.NavigationView>
+
+    </androidx.drawerlayout.widget.DrawerLayout>
+
 </layout>

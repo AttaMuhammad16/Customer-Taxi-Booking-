@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import com.directions.route.AbstractRouting
 import com.directions.route.Routing
 import com.directions.route.RoutingListener
 import com.google.android.gms.maps.model.LatLng
@@ -30,12 +29,18 @@ import com.pakdrive.Utils.CUSTOMER
 import com.pakdrive.Utils.apiKey
 import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
+import com.pakdrive.models.OfferModel
 import com.pakdrive.models.RequestModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.io.ByteArrayOutputStream
+import kotlinx.coroutines.withContext
+import java.sql.Driver
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -146,10 +151,9 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
     }
 
 
-    override suspend fun readCustomer(): CustomerModel? {
-        val uid = auth.currentUser?.uid
+    override suspend fun readUser(role:String,uid:String): CustomerModel? {
         return try {
-            val dataSnapshot = databaseReference.child(CUSTOMER).child(uid!!).get().await()
+            val dataSnapshot = databaseReference.child(role).child(uid).get().await()
             if (dataSnapshot.exists()) {
                 val customerModel = dataSnapshot.getValue(CustomerModel::class.java)
                 customerModel
@@ -185,11 +189,10 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
         }
     }
 
-    override suspend fun uploadRequestModel(requestModel: RequestModel) {
+    override suspend fun uploadRequestModel(requestModel: RequestModel,driverUid:String) {
         var currentUser=auth.currentUser
         if (currentUser!=null){
-            databaseReference.child(Utils.REQUESTSFORDRIVERS).child(currentUser.uid).setValue(requestModel)
-            Log.i("TAG", "uploadRequestModel:called")
+            databaseReference.child(Utils.RIDEREQUESTS).child(driverUid).child(currentUser.uid).setValue(requestModel)
         }
     }
 
@@ -203,5 +206,33 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
         }
     }
 
+    override fun receiveOffers(): Flow<ArrayList<OfferModel>> = callbackFlow {
+        val currentUser = auth.currentUser
+        val offerReference = databaseReference.child(Utils.OFFER).child(currentUser?.uid ?: return@callbackFlow)
+
+        val listener = offerReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val listOfOffers = ArrayList<OfferModel>()
+                snapshot.children.mapNotNullTo(listOfOffers) { it.getValue(OfferModel::class.java) }
+                trySend(listOfOffers)
+            }
+            override fun onCancelled(error: DatabaseError) {
+                close(error.toException())
+            }
+        })
+        awaitClose {
+            offerReference.removeEventListener(listener)
+        }
+    }
+
+    override suspend fun readingDriver(uid: String): DriverModel? {
+       var snap= databaseReference.child(Utils.DRIVER).child(uid).get().await()
+        var model=snap.getValue(DriverModel::class.java)
+        if (model!=null){
+            return model
+        }else{
+            return null
+        }
+    }
 
 }

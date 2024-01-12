@@ -17,14 +17,13 @@ import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
 
-class SendNotificationFromCustomer {
+object SendNotification {
 
     suspend fun sendNotifyFromCustomer(title: String, des: String,listOfTokens:ArrayList<String>,uid:String,comment:String,time:String,distance:String,priceRange:String) {
         val client = OkHttpClient()
         val mediaType = "application/json".toMediaTypeOrNull()
 
         listOfTokens.forEach { token ->
-
             val jsonNotif = JSONObject().apply {
                 put(TITLE, title)
                 put(BODY, des)
@@ -46,17 +45,18 @@ class SendNotificationFromCustomer {
                 put(Utils.PRICERANGE, priceRange)
             }
 
-            val androidConfig = JSONObject().apply {
-                put("ttl", "3600s")  // Time-to-live set to 1 hour(expire time)
-            }
+//            val androidConfig = JSONObject().apply {
+//                put("ttl", "3600s")  // Time-to-live set to 1 hour(expire time)
+//            }
 
             val wholeObj = JSONObject().apply {
                 put("to", token)
                 put("notification", jsonNotif)
                 put("data", jsonData)
                 put("priority", "high")
-                put("android", androidConfig)
-                put("collapse_key", "update") // (updated notification) Example collapse key, change "update" to a suitable key for your app
+//                put("android", androidConfig)
+//                put("collapse_key", "${System.currentTimeMillis()}") // (updated notification) Example collapse key, change "update" to a suitable key for your app
+
             }
 
             val requestBody = RequestBody.create(mediaType, wholeObj.toString())

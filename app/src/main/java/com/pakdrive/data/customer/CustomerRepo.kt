@@ -8,7 +8,9 @@ import com.google.maps.model.TravelMode
 import com.pakdrive.MyResult
 import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
+import com.pakdrive.models.OfferModel
 import com.pakdrive.models.RequestModel
+import kotlinx.coroutines.flow.Flow
 
 interface CustomerRepo {
     suspend fun uploadImageToFirebaseStorage(uri: String):MyResult
@@ -19,10 +21,11 @@ interface CustomerRepo {
     fun findRoutes(Start: LatLng?, End: LatLng?, context: Activity, routingListener: RoutingListener, travelMode: TravelMode = TravelMode.DRIVING)
     suspend fun calculateEstimatedTimeForRoute(start: LatLng, end: LatLng, apiKey: String, travelMode: TravelMode = TravelMode.DRIVING): String?
     suspend fun calculateDistanceForRoute(start: LatLng, end: LatLng, apiKey: String, travelMode: TravelMode): Double?
-    suspend fun readCustomer(): CustomerModel?
+    suspend fun readUser(role:String,uid:String): CustomerModel?
     suspend fun driversInRadius(startLatLang: LatLng, radius: Double): ArrayList<DriverModel>
-    suspend fun uploadRequestModel(requestModel:RequestModel)
+    suspend fun uploadRequestModel(requestModel:RequestModel,driverUid:String)
     suspend fun updateCustomerStartEndLatLang(startLatLang:String,endLatLang:String)
-
+     fun receiveOffers():Flow<ArrayList<OfferModel>>
+     suspend fun readingDriver(uid: String):DriverModel?
 
 }
