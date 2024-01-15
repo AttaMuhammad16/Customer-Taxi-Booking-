@@ -8,7 +8,7 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/_5sdp"
+        android:layout_margin="@dimen/_6sdp"
         android:backgroundTint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -140,7 +140,7 @@
                 android:layout_margin="@dimen/_5sdp"
                 android:backgroundTint="@color/camera_tint"
                 android:text="Decline"
-                android:textColor="#CC4F4F"
+                android:textColor="#D63A3A"
                 android:textSize="@dimen/_18sdp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/acceptBtn"

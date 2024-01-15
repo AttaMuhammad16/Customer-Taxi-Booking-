@@ -10,4 +10,6 @@ data class CustomerModel(
     var address:String="",
     var profileImage:String="",
     var customerFCMToken:String="",
+    var startLatLang:String="",
+    var endLatLang:String=""
 )

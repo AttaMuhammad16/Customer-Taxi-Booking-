@@ -12,10 +12,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
+import com.pakdrive.MyConstants.USER_IMAGE_REQUEST_CODE
 import com.pakdrive.MyResult
 import com.pakdrive.R
 import com.pakdrive.Utils
-import com.pakdrive.Utils.USER_IMAGE_REQUEST_CODE
 import com.pakdrive.Utils.convertUriToBitmap
 import com.pakdrive.Utils.isValidEmail
 import com.pakdrive.Utils.isValidPakistaniPhoneNumber
@@ -92,7 +92,7 @@ class CustomerSignUpActivity : AppCompatActivity() {
                             val resultJob= async { customerViewModel.uploadImageToStorage(bitmap) }
                             val imageUrl=resultJob.await()
                             if (imageUrl is MyResult.Success){
-                                var model= CustomerModel(null,userName, email, password, phoneNumber, address,imageUrl.success,"")
+                                var model= CustomerModel(null,userName, email, password, phoneNumber, address,imageUrl.success,"","","")
                                 var uploadResult=async { customerViewModel.uploadUserOnDatabase(model) }
                                 if (uploadResult.await() is MyResult.Success){
                                     Utils.dismissProgressDialog(dialog)

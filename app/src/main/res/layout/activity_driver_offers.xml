@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:background="@color/backgroundColor"
         android:layout_height="match_parent"
-        tools:context=".ui.activities.DriverRequestsViewActivity">
+        tools:context=".ui.activities.DriversOfferActivity">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar2"
@@ -33,6 +33,8 @@
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_margin="@dimen/_4sdp"
+            tools:listitem="@layout/driver_offers_sample_row"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

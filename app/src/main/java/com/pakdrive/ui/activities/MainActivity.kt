@@ -10,7 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.view.WindowManager
+import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -34,7 +36,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polygon
@@ -47,14 +48,15 @@ import com.pakdrive.InternetChecker
 import com.pakdrive.MapUtils.removePreviousMarkers
 import com.pakdrive.MapUtils.routingSuccess
 import com.pakdrive.MapUtils.updateLocationUI
+import com.pakdrive.MyConstants.CUSTOMER
+import com.pakdrive.MyConstants.CUSTOMER_TOKEN_NODE
+import com.pakdrive.MyConstants.apiKey
 import com.pakdrive.PermissionHandler.Companion.askNotificationPermission
 import com.pakdrive.PermissionHandler.Companion.permissionRequestCode
 import com.pakdrive.PermissionHandler.Companion.showEnableGpsDialog
 import com.pakdrive.R
 import com.pakdrive.Utils
-import com.pakdrive.Utils.CUSTOMER
-import com.pakdrive.Utils.CUSTOMER_TOKEN_NODE
-import com.pakdrive.Utils.apiKey
+import com.pakdrive.Utils.blinkAnimation
 import com.pakdrive.Utils.generateFCMToken
 import com.pakdrive.Utils.isLocationPermissionGranted
 import com.pakdrive.Utils.myToast
@@ -157,6 +159,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
 
 
         binding.menuImage.setOnClickListener {
+            binding.blinkAnim.visibility=View.GONE
             if (binding.drawer.isDrawerOpen(GravityCompat.START)) {
                 binding.drawer.closeDrawer(GravityCompat.START)
             } else {
@@ -164,17 +167,30 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
             }
         }
 
+
         lifecycleScope.launch { // drawer item
-            customerViewModel.receivedOffers().collect{
-                binding.numberOfRequests.text=it.size.toString()
+            customerViewModel.receivedOffers().collect{offers->
+                binding.numberOfRequests.text=offers.size.toString()
+                if (offers.size!=0){
+                    binding.blinkAnim.visibility=View.VISIBLE
+                    binding.numberOfRequests.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.offerTextColor))
+                    binding.numberOfRequests.startAnimation(blinkAnimation(this@MainActivity))
+                }else{
+                    binding.blinkAnim.visibility=View.GONE
+                    binding.numberOfRequests.clearAnimation()
+                }
             }
         }
 
         binding.rideRequestLinear.setOnClickListener {// drawer item
-            startActivity(Intent(this@MainActivity,DriverRequestsViewActivity::class.java))
+            binding.numberOfRequests.clearAnimation()
+            binding.blinkAnim.visibility=View.GONE
+            startActivity(Intent(this@MainActivity,DriversOfferActivity::class.java))
         }
 
-
+        binding.liveDriveLinear.setOnClickListener{
+            startActivity(Intent(this@MainActivity,LiveDriverViewActivity::class.java))
+        }
 
     }
 
@@ -217,7 +233,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                 map.apply {
                     currentCircle?.remove()
                     currentCircle = addCircle(CircleOptions().center(start).radius(radius).strokeColor(Color.WHITE).strokeWidth(5f))
-                    val cameraUpdate = CameraUpdateFactory.newLatLngZoom(start, 14f)
+                    val cameraUpdate = CameraUpdateFactory.newLatLngZoom(start, 12f)
                     animateCamera(cameraUpdate)
                 }
                 removePreviousMarkers(markersList)
@@ -232,12 +248,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                     val marker=onGoogleMap.addMarker(markerOptions)
                     markersList.add(marker?:Marker(null))
                     listOfTokens.add(it.driverFCMToken)
+                    Log.i("drivers", "it.lat -> ${it.lat}, it.lang->${it.lang}, position->$position")
                 }
                 val km=radius/1000.0
                 sendNotification(listOfTokens,model,comment?:"",time,distance.toString(),priceRange.toString())
                 Toast.makeText(this@MainActivity, "Rides in $km KM Radius", Toast.LENGTH_LONG).show()
                 delay(4000)
-                startActivity(Intent(this@MainActivity,DriverRequestsViewActivity::class.java))
+                startActivity(Intent(this@MainActivity,DriversOfferActivity::class.java))
 
             }
         } catch (e: SecurityException) {

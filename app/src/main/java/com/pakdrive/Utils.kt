@@ -13,6 +13,8 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.view.LayoutInflater
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -23,6 +25,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessaging
+import com.pakdrive.MyConstants.LOCATION_PERMISSION_REQUEST_CODE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,45 +33,7 @@ import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 
 object Utils {
-    const val apiKey="AIzaSyAfpjPj2_qCM6dgKxVCGOgh1q_VcukaMBs"
 
-    const val LOCATION_PERMISSION_REQUEST_CODE = 1
-    const val USER_IMAGE_REQUEST_CODE=4
-    const val EMAIL_NODE = "email"
-    const val CUSTOMER = "customer"
-    const val DRIVER = "driver"
-
-    const val RIDEREQUESTS = "rideRequest"
-    const val OFFER = "offers"
-
-    const val VERIFICATION_NODE = "verificationProcess"
-    const val DRIVER_LAT_NODE = "lat"
-    const val DRIVER_LANG_NODE = "lang"
-    const val LATLANG_UPDATE_DELAY=5000
-    const val CUSTOMER_TOKEN_NODE="customerFCMToken"
-    const val DRIVER_TOKEN_NODE="driverFCMToken"
-
-    const val TITLE="title"
-    const val BODY="body"
-    const val STARTLATLANG="startLatLang"
-    const val ENDLATLANG="endLatLang"
-    const val CUSTOMERPHONENUMBER="customerPhoneNumber"
-    const val CUSTOMERNAME="customerName"
-    const val CLICKACTION="click_action"
-    const val PRICERANGE="priceRange"
-    const val COMMENT="comment"
-    const val TIME="time"
-    const val DISTANCE="distance"
-    const val CUSTOMERUID="uid"
-    const val DRIVERUID="driveruid"
-    const val RideRequestFromDriver="RideRequestsFromDriver"
-    const val isRideAccepted="rideAccepted"
-    const val DRIVERLAT="driverLat"
-    const val DRIVERLANG="driverLang"
-
-    const val CUSTOMERSTARTLATLANG="startLatLang"
-    const val CUSTOMERENDLATLANG="endLatLang"
-    const val approved:String="null"
 
     fun isLocationPermissionGranted(context:Activity): Boolean {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -208,10 +173,10 @@ object Utils {
         val builder = AlertDialog.Builder(context)
         builder.setTitle(title)
         builder.setPositiveButton("Yes") { _, _ ->
-            dialogeInterface.requestBool(true)
+            dialogeInterface.clickedBol(true)
         }
         builder.setNegativeButton("No") { _, _ ->
-            dialogeInterface.requestBool(false)
+            dialogeInterface.clickedBol(false)
         }
         val dialog = builder.create()
         dialog.show()
@@ -244,9 +209,15 @@ object Utils {
             ActivityCompat.requestPermissions(context, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE)
         }
     }
+
+
+
+    fun blinkAnimation(context: Activity):Animation{
+        return AnimationUtils.loadAnimation(context, R.anim.blink)
+    }
 }
 
 
 interface DialogeInterface{
-   fun requestBool(boolean: Boolean)
+    fun clickedBol(bol: Boolean)
 }

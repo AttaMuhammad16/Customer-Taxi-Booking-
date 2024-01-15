@@ -32,6 +32,19 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/widgetscolor" />
 
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/blink_anim"
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                android:layout_marginStart="@dimen/_18sdp"
+                android:elevation="@dimen/_5sdp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                android:visibility="invisible"
+                app:lottie_rawRes="@raw/blink_anim" />
+
             <include
                 android:id="@+id/bottom_sheet"
                 layout="@layout/fragment_customer_bottom_sheet"
@@ -146,13 +159,16 @@
                     android:layout_width="match_parent"
                     android:layout_marginTop="@dimen/_10sdp"
                     android:layout_marginStart="@dimen/_10sdp"
-                    android:layout_marginEnd="@dimen/_10sdp"                    android:orientation="horizontal"
+                    android:layout_marginEnd="@dimen/_10sdp"
+                    android:orientation="horizontal"
                     android:layout_height="wrap_content">
+
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/baseline_search_24"
+                        android:src="@drawable/person_with_out_circle"
                         app:tint="@color/white" />
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -169,6 +185,38 @@
                         android:textColor="@color/white"
                         android:text="0" />
                 </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/liveDriveLinear"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:layout_marginEnd="@dimen/_10sdp"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/person_with_out_circle"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Live Drive"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_15sdp"
+                        android:paddingStart="16dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/_15sdp"
+                        android:textColor="@color/white"
+                        android:text="0" />
+                </LinearLayout>
+
             </LinearLayout>
         </com.google.android.material.navigation.NavigationView>
 

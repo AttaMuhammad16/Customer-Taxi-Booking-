@@ -16,6 +16,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.messaging.FirebaseMessagingService
+import com.pakdrive.MyConstants.CUSTOMER
+import com.pakdrive.MyConstants.CUSTOMER_TOKEN_NODE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,7 +40,7 @@ class FireBaseMessageService : FirebaseMessagingService() {
             super.onNewToken(token)
             CoroutineScope(Dispatchers.IO).launch {
                 if (InternetChecker().isInternetConnectedWithPackage(this@FireBaseMessageService)&&auth.currentUser!=null){
-                    Utils.updateFCMToken(Utils.CUSTOMER,Utils.CUSTOMER_TOKEN_NODE,token,auth)
+                    Utils.updateFCMToken(CUSTOMER,CUSTOMER_TOKEN_NODE,token,auth)
                 }
             }
         }

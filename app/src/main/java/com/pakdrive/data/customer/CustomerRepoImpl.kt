@@ -23,10 +23,18 @@ import com.google.maps.GeoApiContext
 import com.google.maps.model.TravelMode
 import com.pakdrive.MapUtils.calculateDistance
 import com.pakdrive.MapUtils.mapTravelModeToAbstractRouting
+import com.pakdrive.MyConstants
+import com.pakdrive.MyConstants.ACCEPTNODE
+import com.pakdrive.MyConstants.CUSTOMER
+import com.pakdrive.MyConstants.CUSTOMERENDLATLANG
+import com.pakdrive.MyConstants.CUSTOMERSTARTLATLANG
+import com.pakdrive.MyConstants.DRIVER
+import com.pakdrive.MyConstants.OFFER
+import com.pakdrive.MyConstants.RIDEREQUESTS
+import com.pakdrive.MyConstants.apiKey
 import com.pakdrive.MyResult
 import com.pakdrive.Utils
-import com.pakdrive.Utils.CUSTOMER
-import com.pakdrive.Utils.apiKey
+import com.pakdrive.models.AcceptModel
 import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
 import com.pakdrive.models.OfferModel
@@ -47,6 +55,7 @@ import kotlin.coroutines.suspendCoroutine
 
 
 class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageReference: StorageReference,val databaseReference: DatabaseReference):CustomerRepo {
+    val currentUser = auth.currentUser
 
      override suspend fun uploadImageToFirebaseStorage(uri: String): MyResult {
         return try {
@@ -87,13 +96,12 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
     }
 
     override suspend fun uploadUserOnDatabase(customerModel: CustomerModel): MyResult {
-        var uid = auth.currentUser?.uid ?: "${System.currentTimeMillis()}"
-        customerModel.uid = uid
-        return try {
-            databaseReference.child(Utils.CUSTOMER).child(uid).setValue(customerModel).await()
+        return if (currentUser!=null){
+            customerModel.uid = currentUser.uid
+            databaseReference.child(CUSTOMER).child(currentUser.uid).setValue(customerModel).await()
             MyResult.Success("Successfully Registered")
-        } catch (e: Exception) {
-            MyResult.Error("Failed: ${e.message}")
+        }else{
+            MyResult.Error("User not login")
         }
     }
 
@@ -167,7 +175,7 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
 
     override suspend fun driversInRadius(startLatLang: LatLng, radius: Double): ArrayList<DriverModel> {
         return suspendCoroutine { continuation ->
-            databaseReference.child(Utils.DRIVER).addListenerForSingleValueEvent(object : ValueEventListener {
+            databaseReference.child(DRIVER).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     val driverModels = ArrayList<DriverModel>()
                     dataSnapshot.children.forEach { childSnapshot ->
@@ -190,25 +198,22 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
     }
 
     override suspend fun uploadRequestModel(requestModel: RequestModel,driverUid:String) {
-        var currentUser=auth.currentUser
         if (currentUser!=null){
-            databaseReference.child(Utils.RIDEREQUESTS).child(driverUid).child(currentUser.uid).setValue(requestModel)
+            databaseReference.child(RIDEREQUESTS).child(driverUid).child(currentUser.uid).setValue(requestModel)
         }
     }
 
     override suspend fun updateCustomerStartEndLatLang(startLatLang: String, endLatLang: String) {
-        var currentUser=auth.currentUser
         if (currentUser!=null){
             var map=HashMap<String,Any>()
-            map[Utils.CUSTOMERSTARTLATLANG]=startLatLang
-            map[Utils.CUSTOMERENDLATLANG]=endLatLang
+            map[CUSTOMERSTARTLATLANG]=startLatLang
+            map[CUSTOMERENDLATLANG]=endLatLang
             databaseReference.child(CUSTOMER).child(currentUser.uid).updateChildren(map)
         }
     }
 
     override fun receiveOffers(): Flow<ArrayList<OfferModel>> = callbackFlow {
-        val currentUser = auth.currentUser
-        val offerReference = databaseReference.child(Utils.OFFER).child(currentUser?.uid ?: return@callbackFlow)
+        val offerReference = databaseReference.child(OFFER).child(currentUser?.uid ?: return@callbackFlow)
 
         val listener = offerReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -226,13 +231,46 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
     }
 
     override suspend fun readingDriver(uid: String): DriverModel? {
-       var snap= databaseReference.child(Utils.DRIVER).child(uid).get().await()
-        var model=snap.getValue(DriverModel::class.java)
+        val snap= databaseReference.child(DRIVER).child(uid).get().await()
+        val model=snap.getValue(DriverModel::class.java)
         if (model!=null){
             return model
         }else{
             return null
         }
+    }
+
+    override suspend fun deleteOffer(driverUid: String): MyResult {
+        return if (currentUser != null) {
+            try {
+                databaseReference.child(OFFER).child(currentUser.uid).child(driverUid).removeValue().await()
+                MyResult.Success("Deleted")
+            } catch (e: Exception) {
+                MyResult.Error(e.message ?: "An error occurred")
+            }
+        } else {
+            MyResult.Error("User not logged in")
+        }
+    }
+
+    override suspend fun deleteRequest(driverUid: String):MyResult {
+        return if (currentUser!=null){
+            databaseReference.child(RIDEREQUESTS).child(driverUid).child(currentUser.uid).removeValue().await()
+            MyResult.Success("Deleted")
+        }else {
+            MyResult.Error("User not logged in")
+        }
+    }
+
+
+    override suspend fun uploadAcceptModel(acceptModel: AcceptModel): MyResult {
+       return if (currentUser!=null){
+           acceptModel.customerUid=currentUser.uid
+            databaseReference.child(ACCEPTNODE).child(acceptModel.driverUid).setValue(acceptModel).await()
+            MyResult.Success("Your request has been sent to the driver. Please await confirmation from the driver.")
+       }else{
+           MyResult.Error("Something wrong or check internet connection.")
+       }
     }
 
 }

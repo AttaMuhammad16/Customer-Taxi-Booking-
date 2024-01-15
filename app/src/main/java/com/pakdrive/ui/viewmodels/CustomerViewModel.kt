@@ -13,6 +13,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.model.TravelMode
 import com.pakdrive.MyResult
 import com.pakdrive.data.customer.CustomerRepo
+import com.pakdrive.models.AcceptModel
 import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
 import com.pakdrive.models.OfferModel
@@ -93,7 +94,6 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
 
     suspend fun uploadRequestModel(requestModel: RequestModel,driverUid:String){
         customerRepo.uploadRequestModel(requestModel,driverUid)
-        Log.i("TAG", "uploadRequestModel:called")
     }
 
     fun updateCustomerStartEndLatLang(startLatLang:String,endLatLang:String){
@@ -108,6 +108,17 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
 
     suspend fun readingDriver(uid: String):DriverModel?{
         return customerRepo.readingDriver(uid)
+    }
+
+    suspend fun deleteOffer(driverUid: String):MyResult{
+        return customerRepo.deleteOffer(driverUid)
+    }
+    suspend fun deleteRequest(driverUid: String):MyResult{
+        return customerRepo.deleteRequest(driverUid)
+    }
+
+    suspend fun uploadAcceptModel(acceptModel: AcceptModel):MyResult{
+        return customerRepo.uploadAcceptModel(acceptModel)
     }
 
 }

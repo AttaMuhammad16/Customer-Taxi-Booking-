@@ -11,5 +11,6 @@
     <color name="light_text_color">#FF9800</color>
     <color name="camera_tint">#BABABA</color>
     <color name="hint_color">#717171</color>
+    <color name="offerTextColor">#FFFFFF</color>
 
 </resources>

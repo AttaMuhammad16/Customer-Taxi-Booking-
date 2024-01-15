@@ -34,9 +34,9 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.maps.model.TravelMode
+import com.pakdrive.MyConstants.apiKey
 import com.pakdrive.R
 import com.pakdrive.Utils
-import com.pakdrive.Utils.apiKey
 import com.pakdrive.Utils.calculatePrice
 import com.pakdrive.adapters.AutoCompleteAdapter
 import com.pakdrive.ui.viewmodels.CustomerViewModel
