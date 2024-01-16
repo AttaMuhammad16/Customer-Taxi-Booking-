@@ -9,7 +9,9 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.pakdrive.DialogeInterface
+import com.pakdrive.MyConstants.DRIVERUID
 import com.pakdrive.MyResult
+import com.pakdrive.PreferencesManager
 import com.pakdrive.R
 import com.pakdrive.Utils
 import com.pakdrive.Utils.dismissProgressDialog
@@ -100,6 +102,7 @@ class DriversOfferAdapter(private val requestList: ArrayList<DriverModel>, var c
                         CoroutineScope(Dispatchers.Main).launch {
                             try {
                                 var result=customerViewModel.uploadAcceptModel(AcceptModel(driverUid = data.uid!!, start = false, customerUid = ""))
+                                PreferencesManager(context).putValue(DRIVERUID,data.uid!!)
                                 sendApprovedNotification("Pak Drive request accepted","Your request has been accepted by the customer. Please proceed to the pickup point. Click on it for more details.",data.driverFCMToken,"true")
                                 resultChecker(result,context)
                             } catch (e: Exception) {
@@ -111,6 +114,7 @@ class DriversOfferAdapter(private val requestList: ArrayList<DriverModel>, var c
                     }
                 }
             },"Do you want to accept this ride?")
+
         }
 
     }

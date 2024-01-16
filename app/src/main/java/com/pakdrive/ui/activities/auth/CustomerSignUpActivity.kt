@@ -92,7 +92,7 @@ class CustomerSignUpActivity : AppCompatActivity() {
                             val resultJob= async { customerViewModel.uploadImageToStorage(bitmap) }
                             val imageUrl=resultJob.await()
                             if (imageUrl is MyResult.Success){
-                                var model= CustomerModel(null,userName, email, password, phoneNumber, address,imageUrl.success,"","","")
+                                var model= CustomerModel(null,userName, email, password, phoneNumber, address,imageUrl.success,"","","","","")
                                 var uploadResult=async { customerViewModel.uploadUserOnDatabase(model) }
                                 if (uploadResult.await() is MyResult.Success){
                                     Utils.dismissProgressDialog(dialog)

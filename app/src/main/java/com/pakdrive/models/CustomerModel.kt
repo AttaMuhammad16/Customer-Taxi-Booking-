@@ -11,5 +11,7 @@ data class CustomerModel(
     var profileImage:String="",
     var customerFCMToken:String="",
     var startLatLang:String="",
-    var endLatLang:String=""
+    var endLatLang:String="",
+    var pickUpPointName:String="",
+    var destinationName:String=""
 )

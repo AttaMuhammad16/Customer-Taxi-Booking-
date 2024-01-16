@@ -141,10 +141,10 @@ class CustomerBottomSheet : BottomSheetDialogFragment() {
         }
 
         findBtn.setOnClickListener {
-            var st=etSearch.text.toString().trim()
-            var dt=destinationSearch.text.toString().trim()
-            var price=priceRageEdt.text.toString().trim()
-            var comment=commentEdt.text.toString().trim()
+            val st=etSearch.text.toString().trim()
+            val dt=destinationSearch.text.toString().trim()
+            val price=priceRageEdt.text.toString().trim()
+            val comment=commentEdt.text.toString().trim()
             if (start==null){
                 etSearch.requestFocus()
                 Toast.makeText(requireContext(), "Enter Pick up point.", Toast.LENGTH_SHORT).show()

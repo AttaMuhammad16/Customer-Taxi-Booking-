@@ -27,7 +27,7 @@ interface CustomerRepo {
     suspend fun readUser(role:String,uid:String): CustomerModel?
     suspend fun driversInRadius(startLatLang: LatLng, radius: Double): ArrayList<DriverModel>
     suspend fun uploadRequestModel(requestModel:RequestModel,driverUid:String)
-    suspend fun updateCustomerStartEndLatLang(startLatLang:String,endLatLang:String)
+    suspend fun updateCustomerDetails(startLatLang:String,endLatLang:String,pickUpPointName:String,destinationName:String)
     fun receiveOffers():Flow<ArrayList<OfferModel>>
     suspend fun readingDriver(uid: String):DriverModel?
 
@@ -36,4 +36,7 @@ interface CustomerRepo {
 
     suspend fun uploadAcceptModel(acceptModel: AcceptModel):MyResult
 
+    suspend fun deleteAcceptModel(driverUid: String):MyResult
+
+    fun gettingDriverLatLang(driverUid: String):Flow<DriverModel?>
 }

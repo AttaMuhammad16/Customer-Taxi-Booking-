@@ -28,8 +28,10 @@ import com.pakdrive.MyConstants.ACCEPTNODE
 import com.pakdrive.MyConstants.CUSTOMER
 import com.pakdrive.MyConstants.CUSTOMERENDLATLANG
 import com.pakdrive.MyConstants.CUSTOMERSTARTLATLANG
+import com.pakdrive.MyConstants.DESTINATIONNAME
 import com.pakdrive.MyConstants.DRIVER
 import com.pakdrive.MyConstants.OFFER
+import com.pakdrive.MyConstants.PICKUPPOINTNAME
 import com.pakdrive.MyConstants.RIDEREQUESTS
 import com.pakdrive.MyConstants.apiKey
 import com.pakdrive.MyResult
@@ -45,6 +47,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -203,11 +206,13 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
         }
     }
 
-    override suspend fun updateCustomerStartEndLatLang(startLatLang: String, endLatLang: String) {
+    override suspend fun updateCustomerDetails(startLatLang: String, endLatLang: String,pickUpPointName:String,destinationName:String) {
         if (currentUser!=null){
-            var map=HashMap<String,Any>()
+            val map=HashMap<String,Any>()
             map[CUSTOMERSTARTLATLANG]=startLatLang
             map[CUSTOMERENDLATLANG]=endLatLang
+            map[PICKUPPOINTNAME]=pickUpPointName
+            map[DESTINATIONNAME]=destinationName
             databaseReference.child(CUSTOMER).child(currentUser.uid).updateChildren(map)
         }
     }
@@ -271,6 +276,29 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
        }else{
            MyResult.Error("Something wrong or check internet connection.")
        }
+    }
+
+    override suspend fun deleteAcceptModel(driverUid: String):MyResult {
+        databaseReference.child(ACCEPTNODE).child(driverUid).removeValue().await()
+        return MyResult.Success("Ride cancelled")
+    }
+
+    override fun gettingDriverLatLang(driverUid: String): Flow<DriverModel?> {
+        return callbackFlow {
+            val listener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val driverModel = snapshot.getValue(DriverModel::class.java)
+                    if (driverModel!=null){
+                        trySend(driverModel).isSuccess
+                    }
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    close(error.toException())
+                }
+            }
+            databaseReference.child(DRIVER).child(driverUid).addValueEventListener(listener)
+            awaitClose { databaseReference.child(driverUid).child(driverUid).removeEventListener(listener) }
+        }
     }
 
 }

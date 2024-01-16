@@ -337,7 +337,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                             listOfDrivers.forEach {
                                 customerViewModel.uploadRequestModel(model,it.uid!!)
                             }
-                            customerViewModel.updateCustomerStartEndLatLang(start.toString(),end.toString())
+                            customerViewModel.updateCustomerDetails(start.toString(),end.toString(),st,dt)
                         }
                     }
                 }
