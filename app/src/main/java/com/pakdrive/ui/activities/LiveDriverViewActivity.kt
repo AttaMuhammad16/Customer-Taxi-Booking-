@@ -1,5 +1,6 @@
 package com.pakdrive.ui.activities
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -35,10 +36,14 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.ktx.Firebase
 import com.google.maps.model.TravelMode
+import com.pakdrive.DialogeInterface
 import com.pakdrive.InternetChecker
 import com.pakdrive.MapUtils.routingSuccess
 import com.pakdrive.MyConstants
+import com.pakdrive.MyConstants.DRIVERUID
 import com.pakdrive.MyConstants.apiKey
 import com.pakdrive.PreferencesManager
 import com.pakdrive.R
@@ -46,14 +51,21 @@ import com.pakdrive.Utils
 import com.pakdrive.Utils.dismissProgressDialog
 import com.pakdrive.Utils.isLocationPermissionGranted
 import com.pakdrive.Utils.requestLocationPermission
+import com.pakdrive.Utils.showAlertDialog
+import com.pakdrive.Utils.stringToLatLng
 import com.pakdrive.databinding.ActivityLiveDriverViewBinding
+import com.pakdrive.service.SendNotification
 import com.pakdrive.ui.viewmodels.CustomerViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.ArrayList
+import javax.inject.Inject
+
 @AndroidEntryPoint
 class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var binding:ActivityLiveDriverViewBinding
@@ -64,9 +76,13 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var list:ArrayList<LatLng>
     val customerViewModel:CustomerViewModel by viewModels()
     lateinit var dialog:Dialog
-
-
-
+    var carInfo=""
+    @Inject
+    lateinit var auth:FirebaseAuth
+    var driverToken=""
+    var startLatLang:LatLng?=null
+    var endLatLang:LatLng?=null
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=DataBindingUtil.setContentView(this@LiveDriverViewActivity,R.layout.activity_live_driver_view)
@@ -85,8 +101,9 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
         if (!isLocationPermissionGranted(this@LiveDriverViewActivity)) {
             requestLocationPermission(this@LiveDriverViewActivity)
         }
-        customerViewModel.apply {
 
+
+        customerViewModel.apply {
             driverNumber.observe(this@LiveDriverViewActivity){
                 if (it.isNotEmpty()){
                     binding.dialImg.setOnClickListener {
@@ -102,7 +119,7 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             driverName.observe(this@LiveDriverViewActivity){
-                if (it.isNotEmpty()){
+                if (it.isNotEmpty() ){
                     binding.driverNameTv.text=it
                 }
             }
@@ -121,11 +138,54 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
 
             carDetails.observe(this@LiveDriverViewActivity){
                 if (it.isNotEmpty()){
-                    binding.carDetailsTv.text=it
+                    carInfo=it
+                }
+            }
+
+            far.observe(this@LiveDriverViewActivity){
+                if (it.isNotEmpty()){
+                    binding.farTv.text="Far: $it PKR"
+                }
+            }
+
+            lifecycleScope.launch {
+                if (auth.currentUser!=null){
+                    var customer=getUser(MyConstants.CUSTOMER,auth.currentUser!!.uid)
+                    if (customer?.startLatLang!="" && customer?.endLatLang!=""){
+                        startLatLang= stringToLatLng(customer!!.startLatLang)
+                        endLatLang= stringToLatLng(customer.endLatLang)
+                        val distance=calculateDistanceForRoute(startLatLang!!,endLatLang!!, apiKey,TravelMode.DRIVING)
+                        binding.distanceTv.text="($distance km)"
+                    }
+                }else{
+                    binding.distanceTv.text="(0 km)"
                 }
             }
         }
 
+        binding.cancelBtn.setOnClickListener { // cancel the ride.
+            showAlertDialog(this@LiveDriverViewActivity,object:DialogeInterface{
+                override fun clickedBol(bol: Boolean) {
+                    if (bol&&driverToken.isNotEmpty()){
+                        var dialog=Utils.showProgressDialog(this@LiveDriverViewActivity,"Cancelling...")
+                        lifecycleScope.launch{
+                            var result=customerViewModel.updateCustomerLatLang()
+                            Utils.resultChecker(result,this@LiveDriverViewActivity)
+
+                            val driverUid=PreferencesManager(this@LiveDriverViewActivity).getValue(MyConstants.DRIVERUID,"empty")
+                            customerViewModel.updateDriverAvailableNode(false,driverUid) // update driver available node
+                            async { customerViewModel.deleteAcceptModel(driverUid) }.await() // delete accept model
+
+                            SendNotification.sendCancellationNotification("Pak Drive", "Ride cancellation notification.Ride has been canceled by the customer.", driverToken, "false")
+                            PreferencesManager(this@LiveDriverViewActivity).deleteValue(MyConstants.DRIVERUID)
+                            finish()
+                            dismissProgressDialog(dialog)
+
+                        }
+                    }
+                }
+            },"Do you want to cancel this ride?")
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -139,31 +199,60 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
             isCompassEnabled=false
             isZoomControlsEnabled=true
         }
-        onGoogleMap.isTrafficEnabled=true
 
-        val uid=PreferencesManager(this@LiveDriverViewActivity).getValue(MyConstants.DRIVERUID,"")
+        onGoogleMap.isTrafficEnabled=true
+        var uid=PreferencesManager(this@LiveDriverViewActivity).getValue(MyConstants.DRIVERUID,"empty")
 
         lifecycleScope.launch{
-
-            customerViewModel.gettingDriverLatLang(uid).collect{
-                if (it!=null){
-                    var internetChecker=InternetChecker().isInternetConnectedWithPackage(this@LiveDriverViewActivity)
-                    if (internetChecker){
-
-                        var driverLocation=Location("").apply {
-                            latitude=it.lat!!
-                            longitude=it.lang!!
+            if (uid!="empty"){
+                customerViewModel.gettingDriverLatLang(uid).collect{
+                    if (it != null) {
+                        if (it.rideCompleted){
+                            var intent=Intent(this@LiveDriverViewActivity,RatingActivity::class.java)
+                            intent.putExtra(DRIVERUID,it.uid)
+                            startActivity(intent)
+                            async { customerViewModel.updateDriverCompletedNode(it.uid!!) }.await()
+                            PreferencesManager(this@LiveDriverViewActivity).deleteValue(DRIVERUID)
+                            uid="empty"
+                            finish()
+                        }else{
+                            if (it.availabe){
+                                driverToken=it.driverFCMToken
+                                var internetChecker=InternetChecker().isInternetConnectedWithPackage(this@LiveDriverViewActivity)
+                                if (internetChecker){
+                                    var driverLocation=Location("").apply {
+                                        latitude=it.lat!!
+                                        longitude=it.lang!!
+                                    }
+                                    customerViewModel.setUserLocationMarker(driverLocation,googleMap,this@LiveDriverViewActivity,R.drawable.car,it.bearing,it.carDetails,it.userName)
+                                    dismissProgressDialog(dialog)
+                                }
+                            }else{
+                                binding.blankTv.visibility= View.VISIBLE
+                                binding.mapFragment.visibility= View.GONE
+                                binding.constraintLayout.visibility= View.GONE
+                                PreferencesManager(this@LiveDriverViewActivity).deleteValue(DRIVERUID)
+                                uid="empty"
+                                dismissProgressDialog(dialog)
+                            }
                         }
-                        customerViewModel.setUserLocationMarker(driverLocation,googleMap,this@LiveDriverViewActivity,R.drawable.car,it.bearing)
+                    }else{
+                        binding.blankTv.visibility= View.VISIBLE
+                        binding.mapFragment.visibility= View.GONE
+                        binding.constraintLayout.visibility= View.GONE
+                        PreferencesManager(this@LiveDriverViewActivity).deleteValue(DRIVERUID)
+                        uid="empty"
                         dismissProgressDialog(dialog)
                     }
 
-                }else{
-                    binding.blankTv.visibility= View.VISIBLE
-                    binding.mapFragment.visibility= View.GONE
                 }
+            }else{
+                binding.blankTv.visibility= View.VISIBLE
+                binding.mapFragment.visibility= View.GONE
+                binding.constraintLayout.visibility= View.GONE
+                dismissProgressDialog(dialog)
             }
         }
-    }
 
+    }
 }

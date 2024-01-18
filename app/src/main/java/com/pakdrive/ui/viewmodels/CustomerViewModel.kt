@@ -55,6 +55,11 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
     private var _carDetails:MutableLiveData<String> = MutableLiveData("")
     val carDetails:LiveData<String> = _carDetails
 
+
+    private var _far:MutableLiveData<String> = MutableLiveData("")
+    val far:LiveData<String> = _far
+
+
     suspend fun uploadImageToStorage(bitmap: Bitmap):MyResult{
         return try {
            customerRepo.uploadImageToFirebaseStorage(bitmap)
@@ -154,11 +159,14 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
         val driverModelFlow=customerRepo.gettingDriverLatLang(driverUid)
         viewModelScope.launch {
             driverModelFlow.collect{
-                _driverName.value=it?.userName
-                _driverNumber.value=it?.phoneNumber
-                _rating.value= (it?.totalRating.toString()+"("+it?.totalPersonRatings.toString()+ ")")
-                _driverProfileUrl.value= it?.profileImageUrl
-                _carDetails.value= it?.carDetails
+                if (it!=null){
+                    _driverName.value=it.userName
+                    _driverNumber.value=it.phoneNumber
+                    _rating.value= (it.totalRating.toString()+"("+it.totalPersonRatings.toString()+ ")")
+                    _driverProfileUrl.value= it.profileImageUrl
+                    _carDetails.value= it.carDetails
+                    _far.value= it.far
+                }
             }
         }
         return driverModelFlow
@@ -181,7 +189,7 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
         return BitmapDescriptorFactory.fromResource(drawable)
     }
 
-    fun setUserLocationMarker(location: Location, mMap: GoogleMap, context: Activity, drawable: Int,bearing:Float) {
+    fun setUserLocationMarker(location: Location, mMap: GoogleMap, context: Activity, drawable: Int, bearing: Float, title: String,driverName:String) {
         val latLng = LatLng(location.latitude, location.longitude)
         var lastZoomLevel = mMap.cameraPosition.zoom
         var lastScaledIcon: BitmapDescriptor? = null
@@ -196,17 +204,54 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
         }
 
         if (userLocationMarker == null) {
-            val markerOptions = MarkerOptions().position(latLng).icon(getScaledCarIcon(mMap.cameraPosition.zoom, context, drawable)).rotation(location.bearing).anchor(0.5f, 0.5f)
+            val markerOptions = MarkerOptions()
+                .position(latLng)
+                .icon(getScaledCarIcon(mMap.cameraPosition.zoom, context, drawable))
+                .rotation(location.bearing)
+                .anchor(0.5f, 0.5f)
+                .title(title)
+
             userLocationMarker = mMap.addMarker(markerOptions)
+            userLocationMarker?.showInfoWindow()
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18f))
         } else {
             userLocationMarker?.position = latLng
             userLocationMarker?.rotation = bearing
+            userLocationMarker?.title = title
+            userLocationMarker?.showInfoWindow()
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18f))
         }
 
         mMap.setOnCameraIdleListener {
             updateMarkerIcon()
+        }
+    }
+
+    fun updateDriverAvailableNode(available: Boolean,driverUid: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            customerRepo.updateDriverAvailableNode(available, driverUid)
+        }
+    }
+
+    fun deleteAllOffers(){
+        viewModelScope.launch(Dispatchers.IO) {
+            customerRepo.deleteAllOffers()
+        }
+    }
+
+   suspend fun updateCustomerLatLang():MyResult{
+        return customerRepo.updateCustomerLatLang()
+    }
+
+    fun deleteRideRequestFromDriver(driverUid: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            customerRepo.deleteRideRequestFromDriver(driverUid)
+        }
+    }
+
+    fun updateDriverCompletedNode(driverUid: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            customerRepo.updateDriverCompletedNode(driverUid)
         }
     }
 

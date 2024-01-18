@@ -45,6 +45,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.maps.model.TravelMode
 import com.pakdrive.InternetChecker
+import com.pakdrive.MapUtils.clearMapObjects
 import com.pakdrive.MapUtils.removePreviousMarkers
 import com.pakdrive.MapUtils.routingSuccess
 import com.pakdrive.MapUtils.updateLocationUI
@@ -152,6 +153,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
             bottomSheetFragment = CustomerBottomSheet()
             bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
         }
+
         lifecycleScope.launch {
             val customerDiffered=async { customerViewModel.getUser(CUSTOMER,currentUser.uid) }
             model= customerDiffered.await()!!
@@ -192,6 +194,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
             startActivity(Intent(this@MainActivity,LiveDriverViewActivity::class.java))
         }
 
+        binding.clearRouteBtn.setOnClickListener {
+            if (::onGoogleMap.isInitialized){
+                clearMapObjects()
+                removePreviousMarkers(markersList)
+                currentCircle?.remove()
+            }
+        }
+
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -230,12 +240,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
         try {
             lifecycleScope.launch {
 
-                map.apply {
-                    currentCircle?.remove()
-                    currentCircle = addCircle(CircleOptions().center(start).radius(radius).strokeColor(Color.WHITE).strokeWidth(5f))
-                    val cameraUpdate = CameraUpdateFactory.newLatLngZoom(start, 12f)
-                    animateCamera(cameraUpdate)
-                }
+
                 removePreviousMarkers(markersList)
 
                 listOfTokens.clear()
@@ -283,6 +288,18 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
         if (start != null && end != null) {
             routingSuccess(route!!, shortestRouteIndex, this, onGoogleMap, st, dt, R.color.yellow)
             Toast.makeText(this, "Your Shortest Route.", Toast.LENGTH_LONG).show()
+
+            onGoogleMap.apply {
+                currentCircle?.remove()
+                currentCircle = addCircle(CircleOptions().center(start!!).radius(radius).strokeColor(Color.BLACK).strokeWidth(5f))
+            }
+
+            onGoogleMap.apply {
+                val cameraUpdate = CameraUpdateFactory.newLatLngZoom(start!!, 12f)
+                animateCamera(cameraUpdate)
+            }
+
+
         } else {
             Toast.makeText(this, "Enter Starting and Ending Point.", Toast.LENGTH_SHORT).show()
         }

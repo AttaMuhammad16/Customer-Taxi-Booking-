@@ -42,12 +42,10 @@ class DriversOfferActivity : AppCompatActivity() {
                 }
 
                 offers.forEach {
-                    delay(500)
-                    Log.i("TAG", "offers far value:${it.far}")
                     var driverModel=customerModel.readingDriver(it.driverUid)
                     if (driverModel!=null){
+                        driverModel.far=it.far
                         list.add(driverModel)
-                        Log.i("TAG", "drivers far value:${driverModel.far}")
                     }
                 }
 

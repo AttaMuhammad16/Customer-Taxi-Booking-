@@ -93,6 +93,18 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/mapFragment" />
+
+            <Button
+                android:id="@+id/clearRouteBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="clear route"
+                android:layout_margin="@dimen/_5sdp"
+                android:backgroundTint="@color/widgetscolor"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toTopOf="@+id/sheetShow"
+                app:layout_constraintEnd_toEndOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -198,7 +210,7 @@
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/person_with_out_circle"
+                        android:src="@drawable/live_drive_ic"
                         app:tint="@color/white" />
 
                     <TextView
@@ -209,14 +221,7 @@
                         android:textColor="@color/white"
                         android:textSize="@dimen/_15sdp"
                         android:paddingStart="16dp" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="@dimen/_15sdp"
-                        android:textColor="@color/white"
-                        android:text="0" />
                 </LinearLayout>
-
             </LinearLayout>
         </com.google.android.material.navigation.NavigationView>
 

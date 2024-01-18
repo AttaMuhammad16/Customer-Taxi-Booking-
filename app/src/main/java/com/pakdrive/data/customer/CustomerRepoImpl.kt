@@ -30,8 +30,10 @@ import com.pakdrive.MyConstants.CUSTOMERENDLATLANG
 import com.pakdrive.MyConstants.CUSTOMERSTARTLATLANG
 import com.pakdrive.MyConstants.DESTINATIONNAME
 import com.pakdrive.MyConstants.DRIVER
+import com.pakdrive.MyConstants.DRIVERAVAILABLENODE
 import com.pakdrive.MyConstants.OFFER
 import com.pakdrive.MyConstants.PICKUPPOINTNAME
+import com.pakdrive.MyConstants.RIDECOMPLETED
 import com.pakdrive.MyConstants.RIDEREQUESTS
 import com.pakdrive.MyConstants.apiKey
 import com.pakdrive.MyResult
@@ -290,6 +292,8 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
                     val driverModel = snapshot.getValue(DriverModel::class.java)
                     if (driverModel!=null){
                         trySend(driverModel).isSuccess
+                    }else{
+                        trySend(null)
                     }
                 }
                 override fun onCancelled(error: DatabaseError) {
@@ -300,5 +304,48 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
             awaitClose { databaseReference.child(driverUid).child(driverUid).removeEventListener(listener) }
         }
     }
+
+    override suspend fun deleteAllOffers() {
+        if (currentUser!=null){
+            databaseReference.child(OFFER).child(currentUser.uid).removeValue().await()
+        }
+    }
+
+    override suspend fun updateDriverAvailableNode(available: Boolean,driverUid: String) {
+        if (currentUser!=null){
+            var map:HashMap<String,Any> = hashMapOf()
+            map[DRIVERAVAILABLENODE] = available
+            databaseReference.child(DRIVER).child(driverUid).updateChildren(map).await()
+        }
+    }
+
+    override suspend fun updateCustomerLatLang(): MyResult {
+        return if (currentUser!=null){
+            val map= hashMapOf<String,Any>()
+            map[CUSTOMERSTARTLATLANG]= ""
+            map[CUSTOMERENDLATLANG]= ""
+            map[PICKUPPOINTNAME]= ""
+            map[DESTINATIONNAME]= ""
+            databaseReference.child(CUSTOMER).child(currentUser.uid).updateChildren(map).await()
+            MyResult.Success("Ride Cancelled.")
+        }else{
+            MyResult.Error("User Not Registered.")
+        }
+    }
+
+    override suspend fun deleteRideRequestFromDriver(driverUid: String) {
+        if (currentUser!=null){
+            databaseReference.child(RIDEREQUESTS).child(driverUid).removeValue().await()
+        }
+    }
+
+    override suspend fun updateDriverCompletedNode(driverUid: String) {
+        if (currentUser!=null){
+            val map=HashMap<String,Any>()
+            map[RIDECOMPLETED]=true
+            databaseReference.child(DRIVER).child(driverUid).updateChildren(map).await()
+        }
+    }
+
 
 }

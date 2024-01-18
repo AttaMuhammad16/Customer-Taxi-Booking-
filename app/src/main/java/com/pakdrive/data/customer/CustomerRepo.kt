@@ -39,4 +39,13 @@ interface CustomerRepo {
     suspend fun deleteAcceptModel(driverUid: String):MyResult
 
     fun gettingDriverLatLang(driverUid: String):Flow<DriverModel?>
+    suspend fun deleteAllOffers()
+    suspend fun updateDriverAvailableNode(available:Boolean,driverUid: String)
+
+    suspend fun updateCustomerLatLang():MyResult
+
+    suspend fun deleteRideRequestFromDriver(driverUid: String)
+
+    suspend fun updateDriverCompletedNode(driverUid: String)
+
 }

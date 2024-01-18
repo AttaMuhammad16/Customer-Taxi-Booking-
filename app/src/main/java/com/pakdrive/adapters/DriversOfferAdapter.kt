@@ -2,6 +2,7 @@ package com.pakdrive.adapters
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,7 @@ import com.pakdrive.models.AcceptModel
 import com.pakdrive.models.DriverModel
 import com.pakdrive.service.SendNotification.sendApprovedNotification
 import com.pakdrive.service.SendNotification.sendCancellationNotification
+import com.pakdrive.ui.activities.LiveDriverViewActivity
 import com.pakdrive.ui.viewmodels.CustomerViewModel
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
@@ -46,6 +48,7 @@ class DriversOfferAdapter(private val requestList: ArrayList<DriverModel>, var c
         val view = LayoutInflater.from(parent.context).inflate(R.layout.driver_offers_sample_row, parent, false)
         return RequestViewHolder(view)
     }
+
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: RequestViewHolder, position: Int) {
         val data = requestList[position]
@@ -101,10 +104,18 @@ class DriversOfferAdapter(private val requestList: ArrayList<DriverModel>, var c
                         var dialog= showProgressDialog(context,"Sending...")
                         CoroutineScope(Dispatchers.Main).launch {
                             try {
-                                var result=customerViewModel.uploadAcceptModel(AcceptModel(driverUid = data.uid!!, start = false, customerUid = ""))
+                                customerViewModel.deleteAllOffers()
+                                customerViewModel.updateDriverAvailableNode(true,data.uid!!)
+                                customerViewModel.deleteRideRequestFromDriver(data.uid!!) // delete ride requests from driver
+
+                                val result=customerViewModel.uploadAcceptModel(AcceptModel(driverUid = data.uid!!, start = false, customerUid = ""))
                                 PreferencesManager(context).putValue(DRIVERUID,data.uid!!)
+
                                 sendApprovedNotification("Pak Drive request accepted","Your request has been accepted by the customer. Please proceed to the pickup point. Click on it for more details.",data.driverFCMToken,"true")
                                 resultChecker(result,context)
+                                context.startActivity(Intent(context,LiveDriverViewActivity::class.java))
+                                context.finish()
+
                             } catch (e: Exception) {
                                 resultChecker(MyResult.Error(e.message ?: "Unknown error"), context)
                             } finally {
