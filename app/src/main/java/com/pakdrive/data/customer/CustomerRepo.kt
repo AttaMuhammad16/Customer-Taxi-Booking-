@@ -46,6 +46,5 @@ interface CustomerRepo {
 
     suspend fun deleteRideRequestFromDriver(driverUid: String)
 
-    suspend fun updateDriverCompletedNode(driverUid: String)
 
 }

@@ -21,5 +21,4 @@ data class DriverModel(
     var availabe:Boolean=false,
     var verificationProcess:Boolean=false,
     var bearing:Float=0.0f,
-    var rideCompleted:Boolean=false
 )

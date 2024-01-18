@@ -152,6 +152,7 @@ object SendNotification {
             put(TITLE, title)
             put(BODY, des)
             put(approvedConst, approved)
+            put(CLICKACTION, "liveViewDriver")
         }
 
         val jsonData = JSONObject().apply {

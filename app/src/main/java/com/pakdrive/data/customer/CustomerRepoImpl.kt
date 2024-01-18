@@ -339,13 +339,5 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
         }
     }
 
-    override suspend fun updateDriverCompletedNode(driverUid: String) {
-        if (currentUser!=null){
-            val map=HashMap<String,Any>()
-            map[RIDECOMPLETED]=true
-            databaseReference.child(DRIVER).child(driverUid).updateChildren(map).await()
-        }
-    }
-
 
 }

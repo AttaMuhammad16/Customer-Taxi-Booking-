@@ -3,6 +3,7 @@ package com.pakdrive.adapters
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,14 +61,7 @@ class DriversOfferAdapter(private val requestList: ArrayList<DriverModel>, var c
         holder.totalRatingTv.text=data.totalRating.toString()
         holder.totalPersonRatings.text=data.totalPersonRatings.toString()
         holder.timeTakenTv.text=data.timeTravelToCustomer // update when request place
-
-        val kilometers = data.distanceTravelToCustomer.toDouble()
-        val meters = (kilometers * 1000).toInt()
-        if (meters<1000){
-            holder.distanceTv.text = "$meters meters"
-        }else{
-            holder.distanceTv.text = "${data.distanceTravelToCustomer} KM"
-        }
+        holder.distanceTv.text = data.distanceTravelToCustomer
 
         holder.declineBtn.setOnClickListener {
             Utils.showAlertDialog(context,object: DialogeInterface {

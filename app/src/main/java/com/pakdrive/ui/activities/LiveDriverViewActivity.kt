@@ -50,8 +50,10 @@ import com.pakdrive.R
 import com.pakdrive.Utils
 import com.pakdrive.Utils.dismissProgressDialog
 import com.pakdrive.Utils.isLocationPermissionGranted
+import com.pakdrive.Utils.myToast
 import com.pakdrive.Utils.requestLocationPermission
 import com.pakdrive.Utils.showAlertDialog
+import com.pakdrive.Utils.showProgressDialog
 import com.pakdrive.Utils.stringToLatLng
 import com.pakdrive.databinding.ActivityLiveDriverViewBinding
 import com.pakdrive.service.SendNotification
@@ -105,6 +107,7 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
 
         customerViewModel.apply {
             driverNumber.observe(this@LiveDriverViewActivity){
+
                 if (it.isNotEmpty()){
                     binding.dialImg.setOnClickListener {
                         if (ContextCompat.checkSelfPermission(this@LiveDriverViewActivity, android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
@@ -116,6 +119,7 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
                         }
                     }
                 }
+
             }
 
             driverName.observe(this@LiveDriverViewActivity){
@@ -201,45 +205,39 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         onGoogleMap.isTrafficEnabled=true
-        var uid=PreferencesManager(this@LiveDriverViewActivity).getValue(MyConstants.DRIVERUID,"empty")
+        var uid=PreferencesManager(this@LiveDriverViewActivity).getValue(DRIVERUID,"empty")
 
         lifecycleScope.launch{
             if (uid!="empty"){
                 customerViewModel.gettingDriverLatLang(uid).collect{
                     if (it != null) {
-                        if (it.rideCompleted){
-                            var intent=Intent(this@LiveDriverViewActivity,RatingActivity::class.java)
-                            intent.putExtra(DRIVERUID,it.uid)
-                            startActivity(intent)
-                            async { customerViewModel.updateDriverCompletedNode(it.uid!!) }.await()
-                            PreferencesManager(this@LiveDriverViewActivity).deleteValue(DRIVERUID)
-                            uid="empty"
-                            finish()
-                        }else{
-                            if (it.availabe){
-                                driverToken=it.driverFCMToken
-                                var internetChecker=InternetChecker().isInternetConnectedWithPackage(this@LiveDriverViewActivity)
-                                if (internetChecker){
-                                    var driverLocation=Location("").apply {
-                                        latitude=it.lat!!
-                                        longitude=it.lang!!
-                                    }
-                                    customerViewModel.setUserLocationMarker(driverLocation,googleMap,this@LiveDriverViewActivity,R.drawable.car,it.bearing,it.carDetails,it.userName)
-                                    dismissProgressDialog(dialog)
+                        if (it.availabe){
+                            driverToken=it.driverFCMToken
+                            var internetChecker=InternetChecker().isInternetConnectedWithPackage(this@LiveDriverViewActivity)
+                            if (internetChecker){
+                                var driverLocation=Location("").apply {
+                                    latitude=it.lat!!
+                                    longitude=it.lang!!
                                 }
-                            }else{
-                                binding.blankTv.visibility= View.VISIBLE
-                                binding.mapFragment.visibility= View.GONE
-                                binding.constraintLayout.visibility= View.GONE
-                                PreferencesManager(this@LiveDriverViewActivity).deleteValue(DRIVERUID)
-                                uid="empty"
+                                customerViewModel.setUserLocationMarker(driverLocation,googleMap,this@LiveDriverViewActivity,R.drawable.car,it.bearing,it.carDetails,it.userName)
                                 dismissProgressDialog(dialog)
                             }
+                        }else{
+                            binding.blankTv.visibility= View.VISIBLE
+                            binding.mapFragment.visibility= View.GONE
+                            binding.constraintLayout.visibility= View.GONE
+                            binding.cardView.visibility= View.GONE
+                            PreferencesManager(this@LiveDriverViewActivity).deleteValue(DRIVERUID)
+                            uid="empty"
+                            dismissProgressDialog(dialog)
+                            myToast(this@LiveDriverViewActivity,"Ride Completed.")
+
                         }
                     }else{
                         binding.blankTv.visibility= View.VISIBLE
                         binding.mapFragment.visibility= View.GONE
                         binding.constraintLayout.visibility= View.GONE
+                        binding.cardView.visibility= View.GONE
                         PreferencesManager(this@LiveDriverViewActivity).deleteValue(DRIVERUID)
                         uid="empty"
                         dismissProgressDialog(dialog)
@@ -250,6 +248,7 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
                 binding.blankTv.visibility= View.VISIBLE
                 binding.mapFragment.visibility= View.GONE
                 binding.constraintLayout.visibility= View.GONE
+                binding.cardView.visibility= View.GONE
                 dismissProgressDialog(dialog)
             }
         }

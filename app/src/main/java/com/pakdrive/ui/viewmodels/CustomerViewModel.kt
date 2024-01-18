@@ -249,10 +249,5 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
         }
     }
 
-    fun updateDriverCompletedNode(driverUid: String){
-        viewModelScope.launch(Dispatchers.IO) {
-            customerRepo.updateDriverCompletedNode(driverUid)
-        }
-    }
 
 }
