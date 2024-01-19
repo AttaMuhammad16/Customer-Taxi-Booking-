@@ -222,7 +222,9 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
                                 customerViewModel.setUserLocationMarker(driverLocation,googleMap,this@LiveDriverViewActivity,R.drawable.car,it.bearing,it.carDetails,it.userName)
                                 dismissProgressDialog(dialog)
                             }
+
                         }else{
+
                             binding.blankTv.visibility= View.VISIBLE
                             binding.mapFragment.visibility= View.GONE
                             binding.constraintLayout.visibility= View.GONE
@@ -230,9 +232,9 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
                             PreferencesManager(this@LiveDriverViewActivity).deleteValue(DRIVERUID)
                             uid="empty"
                             dismissProgressDialog(dialog)
-                            myToast(this@LiveDriverViewActivity,"Ride Completed.")
 
                         }
+
                     }else{
                         binding.blankTv.visibility= View.VISIBLE
                         binding.mapFragment.visibility= View.GONE
@@ -242,8 +244,8 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
                         uid="empty"
                         dismissProgressDialog(dialog)
                     }
-
                 }
+
             }else{
                 binding.blankTv.visibility= View.VISIBLE
                 binding.mapFragment.visibility= View.GONE
