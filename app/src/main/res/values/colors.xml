@@ -12,5 +12,7 @@
     <color name="camera_tint">#BABABA</color>
     <color name="hint_color">#717171</color>
     <color name="offerTextColor">#FFFFFF</color>
-
+    <color name="background">#04243A</color>
+    <color name="dialogue_color_1">#FDD736</color>
+    <color name="dialogue_color_2">#3B5796</color>
 </resources>

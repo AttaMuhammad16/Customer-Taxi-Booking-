@@ -47,6 +47,7 @@ import com.pakdrive.MyConstants.DRIVERUID
 import com.pakdrive.MyConstants.apiKey
 import com.pakdrive.PreferencesManager
 import com.pakdrive.R
+import com.pakdrive.RateUsDialogue
 import com.pakdrive.Utils
 import com.pakdrive.Utils.dismissProgressDialog
 import com.pakdrive.Utils.isLocationPermissionGranted
@@ -84,6 +85,8 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
     var driverToken=""
     var startLatLang:LatLng?=null
     var endLatLang:LatLng?=null
+    private var hasElseBlockExecuted = false
+
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -224,17 +227,18 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
                             }
 
                         }else{
-
-                            binding.blankTv.visibility= View.VISIBLE
-                            binding.mapFragment.visibility= View.GONE
-                            binding.constraintLayout.visibility= View.GONE
-                            binding.cardView.visibility= View.GONE
-                            PreferencesManager(this@LiveDriverViewActivity).deleteValue(DRIVERUID)
-                            uid="empty"
-                            dismissProgressDialog(dialog)
-
+                            if (!hasElseBlockExecuted){
+                                binding.blankTv.visibility= View.VISIBLE
+                                binding.mapFragment.visibility= View.GONE
+                                binding.constraintLayout.visibility= View.GONE
+                                binding.cardView.visibility= View.GONE
+                                PreferencesManager(this@LiveDriverViewActivity).deleteValue(DRIVERUID)
+                                uid="empty"
+                                dismissProgressDialog(dialog)
+                                hasElseBlockExecuted=true
+                                RateUsDialogue(this@LiveDriverViewActivity,it.profileImageUrl,it.uid!!,customerViewModel,it.totalRating,it.totalPersonRatings).show()
+                            }
                         }
-
                     }else{
                         binding.blankTv.visibility= View.VISIBLE
                         binding.mapFragment.visibility= View.GONE

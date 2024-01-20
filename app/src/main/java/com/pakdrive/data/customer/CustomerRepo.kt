@@ -45,6 +45,6 @@ interface CustomerRepo {
     suspend fun updateCustomerLatLang():MyResult
 
     suspend fun deleteRideRequestFromDriver(driverUid: String)
-
+    suspend fun ratingToTheDriver(driverUid: String,rating:Float,currentRating:Float,totalPersonRating:Long,callBack:(MyResult)->Unit)
 
 }

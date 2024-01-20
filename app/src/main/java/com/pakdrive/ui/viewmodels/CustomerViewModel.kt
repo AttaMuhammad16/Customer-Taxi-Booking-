@@ -249,5 +249,11 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
         }
     }
 
+    fun ratingToTheDriver(driverUid: String,rating:Float,currentRating:Float,totalPersonRating:Long,callBack:(MyResult)->Unit){
+        viewModelScope.launch(Dispatchers.IO) {
+            customerRepo.ratingToTheDriver(driverUid, rating, currentRating, totalPersonRating, callBack)
+        }
+    }
+
 
 }

@@ -32,5 +32,7 @@ object MyConstants {
 
     const val DRIVERAVAILABLENODE="availabe"
     const val RIDECOMPLETED="rideCompleted"
+    const val TOTALRATING="totalRating"
+    const val TAOTALPERSONRATING="totalPersonRatings"
 
 }

@@ -33,8 +33,9 @@ import com.pakdrive.MyConstants.DRIVER
 import com.pakdrive.MyConstants.DRIVERAVAILABLENODE
 import com.pakdrive.MyConstants.OFFER
 import com.pakdrive.MyConstants.PICKUPPOINTNAME
-import com.pakdrive.MyConstants.RIDECOMPLETED
 import com.pakdrive.MyConstants.RIDEREQUESTS
+import com.pakdrive.MyConstants.TAOTALPERSONRATING
+import com.pakdrive.MyConstants.TOTALRATING
 import com.pakdrive.MyConstants.apiKey
 import com.pakdrive.MyResult
 import com.pakdrive.Utils
@@ -339,5 +340,22 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
         }
     }
 
+
+    override suspend fun ratingToTheDriver(driverUid: String, rating: Float,currentRating:Float,totalPersonRating:Long,callBack:(MyResult)->Unit) {
+        val totalPerson=totalPersonRating+1
+        val newOverallRating: Float = if (totalPersonRating == 0L) {
+            currentRating
+        } else {
+            ((currentRating * totalPersonRating) + rating) / (totalPersonRating + 1)
+        }
+        val map= hashMapOf<String,Any>()
+        map[TAOTALPERSONRATING]=totalPerson
+        map[TOTALRATING]=newOverallRating
+        databaseReference.child(DRIVER).child(driverUid).updateChildren(map).addOnSuccessListener {
+            callBack(MyResult.Success("Done"))
+        }.addOnFailureListener {
+            callBack(MyResult.Success("Something wrong ${it.message}"))
+        }
+    }
 
 }

@@ -59,7 +59,7 @@ class DriversOfferAdapter(private val requestList: ArrayList<DriverModel>, var c
         holder.vehicleName.text=data.carDetails
         holder.priceTv.text="${data.far} PKR"
         holder.totalRatingTv.text=data.totalRating.toString()
-        holder.totalPersonRatings.text=data.totalPersonRatings.toString()
+        holder.totalPersonRatings.text= "(${data.totalPersonRatings})"
         holder.timeTakenTv.text=data.timeTravelToCustomer // update when request place
         holder.distanceTv.text = data.distanceTravelToCustomer
 
