@@ -31,6 +31,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 object Utils {
 
@@ -214,6 +217,13 @@ object Utils {
 
     fun blinkAnimation(context: Activity):Animation{
         return AnimationUtils.loadAnimation(context, R.anim.blink)
+    }
+
+    fun getCurrentFormattedDate(): String {
+        val currentTimeMillis = System.currentTimeMillis()
+        val dateFormat = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
+        val currentDate = Date(currentTimeMillis)
+        return dateFormat.format(currentDate)
     }
 }
 

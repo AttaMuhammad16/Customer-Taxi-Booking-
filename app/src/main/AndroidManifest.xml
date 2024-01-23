@@ -28,6 +28,9 @@
         android:theme="@style/Theme.PakDrive"
         tools:targetApi="31">
         <activity
+            android:name=".ui.activities.CustomerHistoryActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activities.LiveDriverViewActivity"
             android:exported="false" />
         <activity

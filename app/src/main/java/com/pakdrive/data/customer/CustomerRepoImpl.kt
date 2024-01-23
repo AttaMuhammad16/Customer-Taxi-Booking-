@@ -23,10 +23,10 @@ import com.google.maps.GeoApiContext
 import com.google.maps.model.TravelMode
 import com.pakdrive.MapUtils.calculateDistance
 import com.pakdrive.MapUtils.mapTravelModeToAbstractRouting
-import com.pakdrive.MyConstants
 import com.pakdrive.MyConstants.ACCEPTNODE
 import com.pakdrive.MyConstants.CUSTOMER
 import com.pakdrive.MyConstants.CUSTOMERENDLATLANG
+import com.pakdrive.MyConstants.CUSTOMERRIDEHISTORY
 import com.pakdrive.MyConstants.CUSTOMERSTARTLATLANG
 import com.pakdrive.MyConstants.DESTINATIONNAME
 import com.pakdrive.MyConstants.DRIVER
@@ -44,17 +44,11 @@ import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
 import com.pakdrive.models.OfferModel
 import com.pakdrive.models.RequestModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.pakdrive.models.RideHistoryModel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import java.sql.Driver
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -350,12 +344,42 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
         }
         val map= hashMapOf<String,Any>()
         map[TAOTALPERSONRATING]=totalPerson
-        map[TOTALRATING]=newOverallRating
+        val formattedRating = String.format("%.1f", newOverallRating).toFloat()
+        map[TOTALRATING] = formattedRating
         databaseReference.child(DRIVER).child(driverUid).updateChildren(map).addOnSuccessListener {
             callBack(MyResult.Success("Done"))
         }.addOnFailureListener {
             callBack(MyResult.Success("Something wrong ${it.message}"))
         }
+    }
+
+    override suspend fun rideHistory(rideHistoryModel: RideHistoryModel) {
+        if (auth.currentUser!=null){
+            rideHistoryModel.uid=auth.uid!!
+            databaseReference.push().key?.let {
+                rideHistoryModel.dataBaseKey=it
+                databaseReference.child(CUSTOMERRIDEHISTORY).child(auth.uid!!).child(it).setValue(rideHistoryModel).await()
+            }
+        }
+    }
+
+    override suspend fun getRideHistory(): ArrayList<RideHistoryModel>? {
+        val list=ArrayList<RideHistoryModel>()
+        list.clear()
+        return try {
+            if (auth.currentUser!=null){
+                val snap=databaseReference.child(CUSTOMERRIDEHISTORY).child(auth.uid!!).get().await()
+                if (snap.exists()){
+                    for (i in snap.children){
+                        list.add(i.getValue(RideHistoryModel::class.java)!!)
+                    }
+                }
+            }
+            list
+        }catch (e:Exception){
+            return null
+        }
+
     }
 
 }

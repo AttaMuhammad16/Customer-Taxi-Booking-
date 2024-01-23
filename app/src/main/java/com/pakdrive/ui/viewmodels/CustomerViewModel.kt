@@ -4,8 +4,6 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Location
-import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -26,16 +24,17 @@ import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
 import com.pakdrive.models.OfferModel
 import com.pakdrive.models.RequestModel
+import com.pakdrive.models.RideHistoryModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-
-
 @HiltViewModel
 class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):ViewModel() {
     private var userLocationMarker: Marker? = null
@@ -255,5 +254,19 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
         }
     }
 
+    fun rideHistory(rideHistoryModel: RideHistoryModel){
+        viewModelScope.launch(Dispatchers.IO) {
+            customerRepo.rideHistory(rideHistoryModel)
+        }
+    }
+
+
+    // Make your function a suspend function
+    suspend fun getRideHistory(): ArrayList<RideHistoryModel>? {
+        return customerRepo.getRideHistory()
+    }
+
 
 }
+
+

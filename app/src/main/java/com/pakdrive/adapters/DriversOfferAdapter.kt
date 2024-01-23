@@ -75,6 +75,7 @@ class DriversOfferAdapter(private val requestList: ArrayList<DriverModel>, var c
                                     val requestDeleteResult = customerViewModel.deleteRequest(data.uid!!)
                                     resultChecker(requestDeleteResult, context)
                                     sendCancellationNotification("Pak Drive","Ride Cancellation Notification.User does not accept your Offer",data.driverFCMToken,"false")
+
                                 } else {
                                     resultChecker(deleteOfferResult, context)
                                 }

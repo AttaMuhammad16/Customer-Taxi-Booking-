@@ -194,6 +194,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
             startActivity(Intent(this@MainActivity,LiveDriverViewActivity::class.java))
         }
 
+        binding.rideHistoryLinear.setOnClickListener{
+            startActivity(Intent(this@MainActivity,CustomerHistoryActivity::class.java))
+        }
+
         binding.clearRouteBtn.setOnClickListener {
             if (::onGoogleMap.isInitialized){
                 clearMapObjects()

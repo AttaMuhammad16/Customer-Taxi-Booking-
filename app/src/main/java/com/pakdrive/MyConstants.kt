@@ -34,5 +34,5 @@ object MyConstants {
     const val RIDECOMPLETED="rideCompleted"
     const val TOTALRATING="totalRating"
     const val TAOTALPERSONRATING="totalPersonRatings"
-
+    const val CUSTOMERRIDEHISTORY="CustomerRideHistory"
 }

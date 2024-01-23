@@ -15,4 +15,8 @@
     <color name="background">#04243A</color>
     <color name="dialogue_color_1">#FDD736</color>
     <color name="dialogue_color_2">#3B5796</color>
+
+    <color name="green">#1BDF21</color>
+    <color name="red">#F61D37</color>
+
 </resources>

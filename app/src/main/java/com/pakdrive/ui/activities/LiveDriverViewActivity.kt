@@ -8,27 +8,16 @@ import android.location.Location
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.bumptech.glide.util.Util
-import com.directions.route.Route
-import com.directions.route.RouteException
-import com.directions.route.RoutingListener
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -37,12 +26,11 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.ktx.Firebase
 import com.google.maps.model.TravelMode
 import com.pakdrive.DialogeInterface
 import com.pakdrive.InternetChecker
-import com.pakdrive.MapUtils.routingSuccess
 import com.pakdrive.MyConstants
+import com.pakdrive.MyConstants.CUSTOMER
 import com.pakdrive.MyConstants.DRIVERUID
 import com.pakdrive.MyConstants.apiKey
 import com.pakdrive.PreferencesManager
@@ -50,22 +38,20 @@ import com.pakdrive.R
 import com.pakdrive.RateUsDialogue
 import com.pakdrive.Utils
 import com.pakdrive.Utils.dismissProgressDialog
+import com.pakdrive.Utils.getCurrentFormattedDate
 import com.pakdrive.Utils.isLocationPermissionGranted
-import com.pakdrive.Utils.myToast
 import com.pakdrive.Utils.requestLocationPermission
 import com.pakdrive.Utils.showAlertDialog
 import com.pakdrive.Utils.showProgressDialog
 import com.pakdrive.Utils.stringToLatLng
 import com.pakdrive.databinding.ActivityLiveDriverViewBinding
+import com.pakdrive.models.CustomerModel
+import com.pakdrive.models.RideHistoryModel
 import com.pakdrive.service.SendNotification
 import com.pakdrive.ui.viewmodels.CustomerViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.ArrayList
 import javax.inject.Inject
 
@@ -86,6 +72,7 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
     var startLatLang:LatLng?=null
     var endLatLang:LatLng?=null
     private var hasElseBlockExecuted = false
+    private lateinit var customerModel:CustomerModel
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,7 +82,11 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
         val myFragment = supportFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
         myFragment.getMapAsync(this)
         list= ArrayList()
-        dialog= Utils.showProgressDialog(this@LiveDriverViewActivity,"Loading...")
+        dialog= showProgressDialog(this@LiveDriverViewActivity,"Loading...")
+
+        lifecycleScope.launch {
+            customerModel=customerViewModel.getUser(CUSTOMER,auth.uid!!)!!
+        }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         Places.initialize(this, getString(R.string.api));
@@ -174,20 +165,23 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
             showAlertDialog(this@LiveDriverViewActivity,object:DialogeInterface{
                 override fun clickedBol(bol: Boolean) {
                     if (bol&&driverToken.isNotEmpty()){
-                        var dialog=Utils.showProgressDialog(this@LiveDriverViewActivity,"Cancelling...")
+                        var dialog=showProgressDialog(this@LiveDriverViewActivity,"Cancelling...")
                         lifecycleScope.launch{
-                            var result=customerViewModel.updateCustomerLatLang()
+                            var far=""
+                            customerViewModel.far.observe(this@LiveDriverViewActivity){far=it}
+                            val date=getCurrentFormattedDate()
+                            async { customerViewModel.rideHistory(RideHistoryModel(date,customerModel.pickUpPointName,customerModel.destinationName,false,far,"","")) }.await()
+
+                            val result=customerViewModel.updateCustomerLatLang()
                             Utils.resultChecker(result,this@LiveDriverViewActivity)
 
-                            val driverUid=PreferencesManager(this@LiveDriverViewActivity).getValue(MyConstants.DRIVERUID,"empty")
+                            val driverUid=PreferencesManager(this@LiveDriverViewActivity).getValue(DRIVERUID,"empty")
                             customerViewModel.updateDriverAvailableNode(false,driverUid) // update driver available node
                             async { customerViewModel.deleteAcceptModel(driverUid) }.await() // delete accept model
 
                             SendNotification.sendCancellationNotification("Pak Drive", "Ride cancellation notification.Ride has been canceled by the customer.", driverToken, "false")
-                            PreferencesManager(this@LiveDriverViewActivity).deleteValue(MyConstants.DRIVERUID)
-                            finish()
+                            PreferencesManager(this@LiveDriverViewActivity).deleteValue(DRIVERUID)
                             dismissProgressDialog(dialog)
-
                         }
                     }
                 }
@@ -258,6 +252,5 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
                 dismissProgressDialog(dialog)
             }
         }
-
     }
 }

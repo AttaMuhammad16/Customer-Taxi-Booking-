@@ -11,6 +11,7 @@ import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
 import com.pakdrive.models.OfferModel
 import com.pakdrive.models.RequestModel
+import com.pakdrive.models.RideHistoryModel
 import kotlinx.coroutines.flow.Flow
 
 interface CustomerRepo {
@@ -46,5 +47,7 @@ interface CustomerRepo {
 
     suspend fun deleteRideRequestFromDriver(driverUid: String)
     suspend fun ratingToTheDriver(driverUid: String,rating:Float,currentRating:Float,totalPersonRating:Long,callBack:(MyResult)->Unit)
+    suspend fun rideHistory(rideHistoryModel: RideHistoryModel)
+    suspend fun getRideHistory():ArrayList<RideHistoryModel>?
 
 }
