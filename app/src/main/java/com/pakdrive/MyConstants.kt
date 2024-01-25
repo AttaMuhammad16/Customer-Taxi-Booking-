@@ -35,4 +35,6 @@ object MyConstants {
     const val TOTALRATING="totalRating"
     const val TAOTALPERSONRATING="totalPersonRatings"
     const val CUSTOMERRIDEHISTORY="CustomerRideHistory"
+    const val REQUESTCODEFORPERMISSION=100
+    const val APPURL="https://play.google.com/store/apps/details?id=com.pakdrive"
 }

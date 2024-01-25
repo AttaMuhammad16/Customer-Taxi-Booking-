@@ -50,4 +50,6 @@ interface CustomerRepo {
     suspend fun rideHistory(rideHistoryModel: RideHistoryModel)
     suspend fun getRideHistory():ArrayList<RideHistoryModel>?
 
+    suspend fun updateCustomerDetails(name:String?,number:String?,address:String?)
+
 }

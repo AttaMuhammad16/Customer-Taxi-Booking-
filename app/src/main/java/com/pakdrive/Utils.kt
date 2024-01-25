@@ -11,7 +11,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.location.Location
 import android.net.Uri
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -21,11 +23,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.pakdrive.MyConstants.LOCATION_PERMISSION_REQUEST_CODE
+import com.pakdrive.MyConstants.REQUESTCODEFORPERMISSION
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -225,6 +230,70 @@ object Utils {
         val currentDate = Date(currentTimeMillis)
         return dateFormat.format(currentDate)
     }
+
+
+    private fun shareLocation(location: Location,context: Activity) {
+        val latitude = location.latitude
+        val longitude = location.longitude
+        val uriString = "https://www.google.com/maps/search/?api=1&query=$latitude,$longitude"
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, "Pak Drive\nCheck out my location here: $uriString")
+            type = "text/plain"
+        }
+        context.startActivity(Intent.createChooser(shareIntent, "Share Location Using: Pak Drive"))
+    }
+
+
+    fun getCurrentLocation(context: Activity) {
+        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+           ActivityCompat.requestPermissions(context,arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),REQUESTCODEFORPERMISSION)
+        }
+        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location : Location? ->
+            location?.let {
+                shareLocation(it,context)
+            }
+        }
+    }
+
+    fun shareText(text: String,context: Activity) {
+        val baseText = "Check out Pak Drive(For Customers)! It's amazing. Install now for an easy and enjoyable ride. 🚗\n\n $text"
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, baseText)
+            type = "text/plain"
+        }
+        context.startActivity(Intent.createChooser(shareIntent, "Share text via:Pak Drive"))
+    }
+
+
+
+
+    fun showInputDialog(context: Activity, title: String,text: String, onSave: (String) -> Unit) {
+        val input = EditText(context).apply {
+            inputType = InputType.TYPE_CLASS_TEXT
+            setText(text)
+        }
+        val builder = AlertDialog.Builder(context).apply {
+            setTitle(title)
+            setView(input)
+            setPositiveButton("Save") { dialog, _ ->
+                val text = input.text.toString()
+                if (text.isNotEmpty()) {
+                    onSave(text)
+                    dialog.dismiss()
+                } else {
+                    myToast(context, "Enter your details")
+                }
+            }
+            setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }
+        }
+        builder.show()
+    }
+
 }
 
 

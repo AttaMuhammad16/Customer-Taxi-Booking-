@@ -266,6 +266,12 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
         return customerRepo.getRideHistory()
     }
 
+    suspend fun updateCustomerPersonalDetails(name: String?, number: String?, address: String?){
+        withContext(Dispatchers.IO){
+            customerRepo.updateCustomerDetails(name, number, address)
+        }
+    }
+
 
 }
 

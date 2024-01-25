@@ -23,6 +23,7 @@ import com.google.maps.GeoApiContext
 import com.google.maps.model.TravelMode
 import com.pakdrive.MapUtils.calculateDistance
 import com.pakdrive.MapUtils.mapTravelModeToAbstractRouting
+import com.pakdrive.MyConstants
 import com.pakdrive.MyConstants.ACCEPTNODE
 import com.pakdrive.MyConstants.CUSTOMER
 import com.pakdrive.MyConstants.CUSTOMERENDLATLANG
@@ -379,7 +380,23 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
         }catch (e:Exception){
             return null
         }
+    }
 
+    override suspend fun updateCustomerDetails(name: String?, number: String?, address: String?) {
+        if (auth.currentUser!=null){
+            var dataBaseRef=databaseReference.child(CUSTOMER).child(auth.uid!!)
+            var map= hashMapOf<String,Any>()
+            if (!name.isNullOrEmpty()){
+                map["userName"] = name
+                dataBaseRef.updateChildren(map).await()
+            }else if (!number.isNullOrEmpty()){
+                map["phoneNumber"] = number
+                dataBaseRef.updateChildren(map).await()
+            }else if (!address.isNullOrEmpty()){
+                map["address"] = address
+                dataBaseRef.updateChildren(map).await()
+            }
+        }
     }
 
 }

@@ -28,6 +28,7 @@ class CustomerHistoryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding=DataBindingUtil.setContentView(this@CustomerHistoryActivity,R.layout.activity_customer_history)
         Utils.statusBarColor(this@CustomerHistoryActivity)
+
         var dialog=Utils.showProgressDialog(this@CustomerHistoryActivity,"Loading...")
         lifecycleScope.launch{
             val data=customerViewModel.getRideHistory()

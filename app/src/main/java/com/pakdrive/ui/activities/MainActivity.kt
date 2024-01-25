@@ -44,6 +44,7 @@ import com.google.android.libraries.places.api.Places
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.maps.model.TravelMode
+import com.mindinventory.midrawer.MIDrawerView
 import com.pakdrive.InternetChecker
 import com.pakdrive.MapUtils.clearMapObjects
 import com.pakdrive.MapUtils.removePreviousMarkers
@@ -160,6 +161,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
         }
 
 
+        binding.drawer.setSliderType(MIDrawerView.MI_TYPE_DOOR_OUT)
+
         binding.menuImage.setOnClickListener {
             binding.blinkAnim.visibility=View.GONE
             if (binding.drawer.isDrawerOpen(GravityCompat.START)) {
@@ -168,7 +171,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                 binding.drawer.openDrawer(GravityCompat.START)
             }
         }
-
 
         lifecycleScope.launch { // drawer item
             customerViewModel.receivedOffers().collect{offers->
@@ -204,6 +206,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                 removePreviousMarkers(markersList)
                 currentCircle?.remove()
             }
+        }
+
+        binding.customerProfileLinear.setOnClickListener {
+            startActivity(Intent(this@MainActivity,ProfileActivity::class.java))
         }
 
     }
