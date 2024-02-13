@@ -128,7 +128,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
         currentUser=auth.currentUser!!
         Utils.statusBarColor(this,R.color.tool_color)
 
-
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             askNotificationPermission(this,requestPermissionLauncher)
         } else {
@@ -158,8 +157,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
         lifecycleScope.launch {
             val customerDiffered=async { customerViewModel.getUser(CUSTOMER,currentUser.uid) }
             model= customerDiffered.await()!!
+            if (model.lock){
+                startActivity(Intent(this@MainActivity,AccountBlockActivity::class.java))
+                finish()
+            }
         }
-
 
         binding.drawer.setSliderType(MIDrawerView.MI_TYPE_DOOR_OUT)
 
@@ -211,6 +213,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
         binding.customerProfileLinear.setOnClickListener {
             startActivity(Intent(this@MainActivity,ProfileActivity::class.java))
         }
+
+
 
     }
 

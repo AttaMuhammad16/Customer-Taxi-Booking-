@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.util.Log
 import android.widget.Toast
@@ -34,6 +36,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.security.Policy
+import java.util.Locale
 
 object MapUtils {
 
@@ -114,17 +117,38 @@ object MapUtils {
             map.apply {
                 isMyLocationEnabled = true
                 uiSettings.isMyLocationButtonEnabled = true
+
                 val locationResult = fusedLocationClient.lastLocation
                 locationResult.addOnCompleteListener(context) { task ->
                     if (task.result!=null){
-                        moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(task.result.latitude,task.result.longitude),17f))
-                        dismissProgressDialog(dialog)
-                        var markerOption=MarkerOptions()
-                        markerOption.title("Current Location")
-                        markerOption.position(LatLng(task.result.latitude,task.result.longitude))
-                        map.addMarker(markerOption)
+
+                        val geocoder = Geocoder(context, Locale.getDefault())
+                        val addresses= geocoder.getFromLocation(
+                            task.result.latitude,
+                            task.result.longitude,
+                            1
+                        )
+
+                        if (addresses!!.isNotEmpty()) {
+                            val address: Address = addresses[0]
+                            val addressName = address.getAddressLine(0)
+                            moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(task.result.latitude,task.result.longitude),17f))
+                            dismissProgressDialog(dialog)
+                            val markerOption=MarkerOptions()
+                            markerOption.title(addressName)
+                            markerOption.position(LatLng(task.result.latitude,task.result.longitude))
+                            map.addMarker(markerOption)
+                        }else{
+                            moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(task.result.latitude,task.result.longitude),17f))
+                            dismissProgressDialog(dialog)
+                            val markerOption=MarkerOptions()
+                            markerOption.title("Current Location")
+                            markerOption.position(LatLng(task.result.latitude,task.result.longitude))
+                            map.addMarker(markerOption)
+                        }
+
                     }else{
-                        Log.i("TAG", "updateLocationUI:${task.result}")
+                        Log.i("task", "updateLocationUI:${task.result}")
                     }
                 }
             }

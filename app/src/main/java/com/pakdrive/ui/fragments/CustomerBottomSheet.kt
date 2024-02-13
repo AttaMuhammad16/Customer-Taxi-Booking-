@@ -1,6 +1,9 @@
 package com.pakdrive.ui.fragments
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Address
+import android.location.Geocoder
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -45,6 +48,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -89,8 +93,9 @@ class CustomerBottomSheet : BottomSheetDialogFragment() {
         setStyle(DialogFragment.STYLE_NORMAL, R.style.DialogStyle)
     }
 
+    @SuppressLint("MissingPermission")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        var view= inflater.inflate(R.layout.fragment_customer_bottom_sheet, container, false)
+        val view= inflater.inflate(R.layout.fragment_customer_bottom_sheet, container, false)
 
 
         etSearch = view.findViewById(R.id.etSearch)
@@ -103,6 +108,7 @@ class CustomerBottomSheet : BottomSheetDialogFragment() {
         commentCross = view.findViewById(R.id.commentCross)
         commentEdt = view.findViewById(R.id.commentEdt)
         pd = view.findViewById(R.id.pd)
+        var currentLocationImg = view.findViewById<ImageView>(R.id.currentLocationImg)
 
         if (auth.currentUser!=null){
             databaseReference.child("pricePerKM").addValueEventListener(object:ValueEventListener{
@@ -215,8 +221,31 @@ class CustomerBottomSheet : BottomSheetDialogFragment() {
 
             placesClient.fetchPlace(request).addOnSuccessListener { response ->
                 val place = response.place
-                var latlang: LatLng = place.latLng
+                val latlang: LatLng = place.latLng
                 start = LatLng(latlang.latitude,latlang.longitude)
+            }
+        }
+
+
+        currentLocationImg.setOnClickListener {
+            val locationResult = fusedLocationClient.lastLocation
+            locationResult.addOnCompleteListener(requireActivity()) { task ->
+                if (task.result != null) {
+                    val geocoder = Geocoder(requireContext(), Locale.getDefault())
+                    val addresses = geocoder.getFromLocation(
+                        task.result.latitude,
+                        task.result.longitude,
+                        1
+                    )
+                    if (addresses?.isNotEmpty()==true){
+                        start = LatLng(task.result.latitude,task.result.longitude)
+                        val address: Address = addresses[0]
+                        val addressName = address.getAddressLine(0)
+                        etSearch.setText(addressName)
+                    }else{
+                        Toast.makeText(requireContext(), "Address not found.", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
 

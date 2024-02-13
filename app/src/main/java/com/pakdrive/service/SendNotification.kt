@@ -1,6 +1,7 @@
 package com.pakdrive.service
 
 import android.util.Log
+import com.pakdrive.MyConstants
 import com.pakdrive.MyConstants.BODY
 import com.pakdrive.MyConstants.CLICKACTION
 import com.pakdrive.MyConstants.COMMENT
@@ -198,5 +199,66 @@ object SendNotification {
             }
         })
     }
+
+
+
+
+
+    suspend fun sendNotificationToAdmin(title: String, des: String,adminFCM:String,) {
+        val client = OkHttpClient()
+        val mediaType = "application/json".toMediaTypeOrNull()
+
+        val jsonNotif = JSONObject().apply {
+            put(TITLE, title)
+            put(BODY, des)
+            put(MyConstants.SUPPORT, MyConstants.SUPPORT)
+            put(CLICKACTION, "message")
+        }
+
+        val jsonData = JSONObject().apply {
+            put(TITLE, title)
+            put(BODY, des)
+            put(MyConstants.SUPPORT, MyConstants.SUPPORT)
+        }
+
+        val androidConfig = JSONObject().apply {
+            put("ttl", "3600s")  // Time-to-live set to 1 hour(expire time)
+        }
+
+        val wholeObj = JSONObject().apply {
+            put("to", adminFCM)
+            put("notification", jsonNotif)
+            put("data", jsonData)
+            put("priority", "high")
+            put("android", androidConfig)
+            put("collapse_key", "update") // (updated notification) Example collapse key, change "update" to a suitable key for your app
+        }
+
+        val requestBody = RequestBody.create(mediaType, wholeObj.toString())
+        val request = Request.Builder()
+            .url("https://fcm.googleapis.com/fcm/send")
+            .post(requestBody)
+            .addHeader("Authorization", "key=AAAAx5Jyo0U:APA91bEB1Z9IYIqrN7Tt6avCLOTcto6sLJurSg_JrFCEteF8LS4QKqrB_wMsuh1ZFDiUAlw2rnAS94QHonUtw9j_s5ayfsjFgCmv1xU4I7toSlzB82_mquaMT8M-Fdh20jnw2r0HANO3")
+            .addHeader("Content-type", "application/json")
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                TODO("Not yet implemented")
+            }
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                val responseJson = JSONObject(responseBody ?: "{}")
+                val success = responseJson.optInt("success", 0)
+                if (success == 1) {
+                    Log.i("TAG", "Notification sent successfully to $adminFCM")
+                } else {
+                    Log.e("TAG", "Failed to send notification. Response: $responseBody")
+                }
+            }
+        })
+    }
+
+
 
 }

@@ -22,6 +22,7 @@ import com.pakdrive.data.customer.CustomerRepo
 import com.pakdrive.models.AcceptModel
 import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
+import com.pakdrive.models.MessageModel
 import com.pakdrive.models.OfferModel
 import com.pakdrive.models.RequestModel
 import com.pakdrive.models.RideHistoryModel
@@ -272,6 +273,13 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
         }
     }
 
+    suspend fun uploadMessage(messageModel: MessageModel): MyResult{
+        return withContext(Dispatchers.IO){ customerRepo.uploadMessage(messageModel)}
+    }
+
+    suspend fun getAdminFCM(): String{
+        return withContext(Dispatchers.IO) {customerRepo.getAdminFCM()}
+    }
 
 }
 

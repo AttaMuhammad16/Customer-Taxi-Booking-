@@ -13,5 +13,6 @@ data class CustomerModel(
     var startLatLang:String="",
     var endLatLang:String="",
     var pickUpPointName:String="",
-    var destinationName:String=""
+    var destinationName:String="",
+    var lock:Boolean=false
 )

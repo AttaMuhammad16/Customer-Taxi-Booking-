@@ -43,7 +43,7 @@ class ProfileActivity : AppCompatActivity() {
         lifecycleScope.launch{
             if (auth.currentUser!=null) {
 
-                var customerDetails=customerViewModel.getUser(MyConstants.CUSTOMER, auth.uid!!)?.apply {
+                val customerDetails=customerViewModel.getUser(MyConstants.CUSTOMER, auth.uid!!)?.apply {
                     Picasso.get().load(profileImage).placeholder(R.drawable.user).into(binding.userImage)
                     binding.frontNameTv.text = userName
                     binding.nameTv.text = userName

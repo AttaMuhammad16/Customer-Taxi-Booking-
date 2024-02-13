@@ -11,6 +11,7 @@ import com.pakdrive.MyConstants.CUSTOMER_TOKEN_NODE
 import com.pakdrive.MyConstants.DRIVERUID
 import com.pakdrive.MyConstants.TITLE
 import com.pakdrive.MyConstants.approvedConst
+import com.pakdrive.ui.activities.AccountBlockActivity
 import com.pakdrive.ui.activities.LiveDriverViewActivity
 import com.pakdrive.ui.activities.MainActivity
 import kotlinx.coroutines.CoroutineScope
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("MissingFirebaseInstanceTokenRefresh")
 class FireBaseMessageService : FirebaseMessagingService() {
+
     val auth: FirebaseAuth by lazy{
         FirebaseAuth.getInstance()
     }
@@ -26,21 +28,31 @@ class FireBaseMessageService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
         val data = remoteMessage.data
-        val approve=data[approvedConst]
+        val type=data[approvedConst]
 
-        if (approve=="false"){
-            remoteMessage.notification?.let {
-                showCancelNotification(it.title?:"Pak Drive",it.body?:"Ride cancelled")
+        when (type) {
+            "false" -> {
+                remoteMessage.notification?.let {
+                    showCancelNotification(it.title?:"Pak Drive",it.body?:"Ride cancelled")
+                }
             }
-        }else if (approve=="true"){
-            remoteMessage.notification?.let {
-                showRideCompletedNotification(it.title?:"Pak Drive",it.body?:"Ride Completed")
+            "true" -> {
+                remoteMessage.notification?.let {
+                    showRideCompletedNotification(it.title?:"Pak Drive",it.body?:"Ride Completed")
+                }
             }
-        }else if (approve=="reached"){
-            remoteMessage.notification?.let {
-                showPickUpPointNotification(it.title?:"Pak Drive",it.body?:"Ride Completed")
+            "reached" -> {
+                remoteMessage.notification?.let {
+                    showPickUpPointNotification(it.title?:"Pak Drive",it.body?:"Ride Completed")
+                }
+            }
+            "block" -> {
+                remoteMessage.notification?.let {
+                    showAccountBlockNotification(it.title?:"Pak Drive",it.body?:"Ride Completed")
+                }
             }
         }
+
 
     }
 
@@ -77,6 +89,15 @@ class FireBaseMessageService : FirebaseMessagingService() {
         intent.putExtra(TITLE,title)
         val pendingIntent = PendingIntent.getActivity(this, 7, intent, PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
         com.pakdrive.service.notification.NotificationManager.showNotification(7, "Pak Drive pick up point", pendingIntent, this, title, messageBody)
+    }
+
+
+    private fun showAccountBlockNotification(title: String,messageBody: String){
+        val intent = Intent(this, AccountBlockActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intent.putExtra(TITLE,title)
+        val pendingIntent = PendingIntent.getActivity(this, 8, intent, PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+        com.pakdrive.service.notification.NotificationManager.showNotification(8, "Pak Drive account bock", pendingIntent, this, title, messageBody)
     }
 
 

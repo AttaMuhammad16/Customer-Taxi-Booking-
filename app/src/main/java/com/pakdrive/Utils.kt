@@ -42,7 +42,6 @@ import java.util.Locale
 
 object Utils {
 
-
     fun isLocationPermissionGranted(context:Activity): Boolean {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
@@ -74,7 +73,6 @@ object Utils {
             is MyResult.Success->{
                 myToast(context,result.success)
             }
-
             is MyResult.Error->{
                 myToast(context,result.error)
             }
@@ -83,6 +81,7 @@ object Utils {
             }
         }
     }
+
 
     fun isValidPakistaniPhoneNumber(phoneNumber: String): Boolean {
         return if (phoneNumber.startsWith("+923")){
@@ -114,8 +113,10 @@ object Utils {
         }
     }
 
+
+
     fun showProgressDialog(context: Context, message: String): Dialog {
-        var progressDialog = Dialog(context)
+        val progressDialog = Dialog(context)
         progressDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         progressDialog.setCancelable(false)
 
@@ -129,7 +130,7 @@ object Utils {
     }
 
     fun dismissProgressDialog(progressDialog: Dialog) {
-        progressDialog?.dismiss()
+        progressDialog.dismiss()
     }
 
     fun generateFCMToken(role:String,tokenNode: String,auth: FirebaseAuth){

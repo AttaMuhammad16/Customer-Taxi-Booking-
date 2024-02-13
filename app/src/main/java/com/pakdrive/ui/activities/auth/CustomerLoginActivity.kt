@@ -35,18 +35,15 @@ class CustomerLoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding=DataBindingUtil.setContentView(this,R.layout.activity_customer_login)
         Utils.statusBarColor(this@CustomerLoginActivity)
-        var user=auth.currentUser
+        val user=auth.currentUser
 
         if (user!=null){
             startActivity(Intent(this@CustomerLoginActivity,MainActivity::class.java))
             finish()
         }
-
-
         binding.signUpTv.setOnClickListener {
             startActivity(Intent(this@CustomerLoginActivity,CustomerSignUpActivity::class.java))
         }
-
         binding.loginBtn.setOnClickListener {
 
             val dialog= Utils.showProgressDialog(this,"Loading")

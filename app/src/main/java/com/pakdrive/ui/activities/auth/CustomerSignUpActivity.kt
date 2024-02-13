@@ -85,20 +85,18 @@ class CustomerSignUpActivity : AppCompatActivity() {
                 authViewModel.registerUser(email,password){authResult->
                     if (authResult is MyResult.Error){
                         resultChecker(authResult,this)
-
                     }else if (authResult is MyResult.Success){
-
                         lifecycleScope.launch {
                             val resultJob= async { customerViewModel.uploadImageToStorage(bitmap) }
                             val imageUrl=resultJob.await()
                             if (imageUrl is MyResult.Success){
-                                var model= CustomerModel(null,userName, email, password, phoneNumber, address,imageUrl.success,"","","","","")
-                                var uploadResult=async { customerViewModel.uploadUserOnDatabase(model) }
+                                val model= CustomerModel(null,userName, email, password, phoneNumber, address,imageUrl.success,"","","","","",false)
+                                val uploadResult=async { customerViewModel.uploadUserOnDatabase(model) }
                                 if (uploadResult.await() is MyResult.Success){
                                     Utils.dismissProgressDialog(dialog)
                                     resultChecker(uploadResult.await(),this@CustomerSignUpActivity)
-                                    startActivity(Intent(this@CustomerSignUpActivity,CustomerLoginActivity::class.java))
-                                    finish()
+//                                    startActivity(Intent(this@CustomerSignUpActivity,CustomerLoginActivity::class.java))
+//                                    finish()
                                 }else{
                                     resultChecker(uploadResult.await(),this@CustomerSignUpActivity)
                                     Utils.dismissProgressDialog(dialog)
@@ -127,9 +125,7 @@ class CustomerSignUpActivity : AppCompatActivity() {
                 job.cancel()
                 binding.selectedImg.setImageBitmap(bitmap)
             }
-
         }
     }
-
 
 }

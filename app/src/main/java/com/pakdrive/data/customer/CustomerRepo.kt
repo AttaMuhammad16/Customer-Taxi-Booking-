@@ -9,6 +9,7 @@ import com.pakdrive.MyResult
 import com.pakdrive.models.AcceptModel
 import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
+import com.pakdrive.models.MessageModel
 import com.pakdrive.models.OfferModel
 import com.pakdrive.models.RequestModel
 import com.pakdrive.models.RideHistoryModel
@@ -51,5 +52,7 @@ interface CustomerRepo {
     suspend fun getRideHistory():ArrayList<RideHistoryModel>?
 
     suspend fun updateCustomerDetails(name:String?,number:String?,address:String?)
+    suspend fun uploadMessage(messageModel: MessageModel):MyResult
+    suspend fun getAdminFCM():String
 
 }

@@ -35,6 +35,7 @@ import com.pakdrive.MyConstants.DRIVERAVAILABLENODE
 import com.pakdrive.MyConstants.OFFER
 import com.pakdrive.MyConstants.PICKUPPOINTNAME
 import com.pakdrive.MyConstants.RIDEREQUESTS
+import com.pakdrive.MyConstants.SUPPORT
 import com.pakdrive.MyConstants.TAOTALPERSONRATING
 import com.pakdrive.MyConstants.TOTALRATING
 import com.pakdrive.MyConstants.apiKey
@@ -43,6 +44,7 @@ import com.pakdrive.Utils
 import com.pakdrive.models.AcceptModel
 import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
+import com.pakdrive.models.MessageModel
 import com.pakdrive.models.OfferModel
 import com.pakdrive.models.RequestModel
 import com.pakdrive.models.RideHistoryModel
@@ -398,5 +400,36 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
             }
         }
     }
+
+    override suspend fun uploadMessage(messageModel: MessageModel): MyResult {
+        return try {
+            return if (currentUser!=null){
+                val uid=auth.currentUser!!.uid
+                val key=databaseReference.push().key!!
+                messageModel.uid=uid
+                messageModel.databaseKey=key
+                databaseReference.child(SUPPORT).child(CUSTOMER).child(key).setValue(messageModel).await()
+                MyResult.Error("Your report has been submitted wait for conformation from support side.")
+            }else{
+                MyResult.Error("User not exit.")
+            }
+        }catch (e:Exception){
+            MyResult.Error("${e.message}")
+        }
+    }
+
+
+    override suspend fun getAdminFCM(): String {
+        return try {
+            val snapshot = databaseReference.child(MyConstants.ADMINFCM).get().await()
+            val token = snapshot.getValue(String::class.java)
+            token ?: ""
+        } catch (e: Exception) {
+            e.message.toString()
+        }
+    }
+
+
+
 
 }
