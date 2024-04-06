@@ -17,6 +17,7 @@ import com.pakdrive.MyConstants
 import com.pakdrive.PermissionHandler
 import com.pakdrive.R
 import com.pakdrive.Utils
+import com.pakdrive.Utils.setUpNavigationColor
 import com.pakdrive.ui.activities.auth.CustomerLoginActivity
 import com.pakdrive.ui.viewmodels.CustomerViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,6 +39,7 @@ class SplashScreen : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
         Utils.statusBarColor(this@SplashScreen)
+        setUpNavigationColor()
 
         locationManager=getSystemService(Context.LOCATION_SERVICE) as LocationManager
 

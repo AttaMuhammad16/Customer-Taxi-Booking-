@@ -18,18 +18,20 @@ class InternetChecker {
     private suspend fun isInternetAvailable(context: Context): Boolean = withContext(Dispatchers.IO) {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        return@withContext if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val network = connectivityManager.activeNetwork
             val capabilities = connectivityManager.getNetworkCapabilities(network)
-            return@withContext capabilities != null && (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET))
+             capabilities != null && (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET))
         } else {
             val activeNetworkInfo = connectivityManager.activeNetworkInfo
-            return@withContext activeNetworkInfo != null && activeNetworkInfo.isConnected
+            activeNetworkInfo != null && activeNetworkInfo.isConnected
         }
     }
 
+
     private suspend fun hasInternetPackage(context: Context): Boolean = withContext(Dispatchers.IO) {
-        try {
+       return@withContext try {
+
             val timeoutMs = 1500
             val socket = Socket()
             val socketAddress = InetSocketAddress("8.8.8.8", 53)
@@ -37,9 +39,9 @@ class InternetChecker {
             socket.connect(socketAddress, timeoutMs)
             socket.close()
 
-            return@withContext true
+             true
         } catch (e: IOException) {
-            return@withContext false
+            false
         }
     }
 

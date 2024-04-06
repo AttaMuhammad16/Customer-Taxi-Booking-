@@ -19,6 +19,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="#204975"
             tools:context=".ui.activities.MainActivity">
 
             <ImageView
@@ -30,7 +31,7 @@
                 android:src="@drawable/baseline_menu_24"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/widgetscolor" />
+                app:tint="@color/white" />
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/blink_anim"
@@ -136,7 +137,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:lottie_autoPlay="true"
-                        app:lottie_rawRes="@raw/taxi"
+                        app:lottie_rawRes="@raw/drawer_anim"
                         app:lottie_loop="true" />
 
                     <TextView

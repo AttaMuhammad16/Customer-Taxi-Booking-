@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
@@ -16,6 +17,7 @@ import com.pakdrive.Utils
 import com.pakdrive.Utils.dismissProgressDialog
 import com.pakdrive.Utils.invalidInputsMessage
 import com.pakdrive.Utils.myToast
+import com.pakdrive.Utils.setUpNavigationColor
 import com.pakdrive.databinding.ActivityCustomerLoginBinding
 import com.pakdrive.ui.activities.MainActivity
 import com.pakdrive.ui.viewmodels.AuthViewModel
@@ -36,7 +38,7 @@ class CustomerLoginActivity : AppCompatActivity() {
         binding=DataBindingUtil.setContentView(this,R.layout.activity_customer_login)
         Utils.statusBarColor(this@CustomerLoginActivity)
         val user=auth.currentUser
-
+        setUpNavigationColor()
         if (user!=null){
             startActivity(Intent(this@CustomerLoginActivity,MainActivity::class.java))
             finish()
@@ -65,7 +67,7 @@ class CustomerLoginActivity : AppCompatActivity() {
             } else {
 
                 lifecycleScope.launch{
-                    var isInternetAvailable=async { InternetChecker().isInternetConnectedWithPackage(this@CustomerLoginActivity) }
+                    val isInternetAvailable=async { InternetChecker().isInternetConnectedWithPackage(this@CustomerLoginActivity) }
                     if (isInternetAvailable.await()){
                         authViewModel.loginUser(email,password) { result ->
                             if (result is MyResult.Error) {

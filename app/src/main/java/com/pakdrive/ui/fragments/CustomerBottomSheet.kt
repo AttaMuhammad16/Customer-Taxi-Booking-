@@ -41,6 +41,7 @@ import com.pakdrive.MyConstants.apiKey
 import com.pakdrive.R
 import com.pakdrive.Utils
 import com.pakdrive.Utils.calculatePrice
+import com.pakdrive.Utils.setUpNavigationColor
 import com.pakdrive.adapters.AutoCompleteAdapter
 import com.pakdrive.ui.viewmodels.CustomerViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -91,6 +92,7 @@ class CustomerBottomSheet : BottomSheetDialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(DialogFragment.STYLE_NORMAL, R.style.DialogStyle)
+        requireActivity().setUpNavigationColor()
     }
 
     @SuppressLint("MissingPermission")

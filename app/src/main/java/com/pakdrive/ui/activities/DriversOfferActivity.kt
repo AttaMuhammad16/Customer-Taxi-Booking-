@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pakdrive.R
 import com.pakdrive.Utils
+import com.pakdrive.Utils.setUpNavigationColor
 import com.pakdrive.adapters.DriversOfferAdapter
 import com.pakdrive.databinding.ActivityDriverOffersBinding
 import com.pakdrive.models.DriverModel
@@ -30,6 +31,7 @@ class DriversOfferActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding=DataBindingUtil.setContentView(this,R.layout.activity_driver_offers)
         Utils.statusBarColor(this@DriversOfferActivity)
+        setUpNavigationColor()
 
         lifecycleScope.launch {
             var dialog=Utils.showProgressDialog(this@DriversOfferActivity,"Loading...")

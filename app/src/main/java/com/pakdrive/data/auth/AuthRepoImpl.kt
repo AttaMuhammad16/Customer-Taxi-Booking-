@@ -47,6 +47,7 @@ class AuthRepoImpl @Inject constructor(val auth:FirebaseAuth,val databaseReferen
         }
     }
 
+
     private suspend fun checkEmailExits(email: String): Boolean = suspendCoroutine { cont ->
         val query = databaseReference.child(CUSTOMER).orderByChild(EMAIL_NODE).equalTo(email)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -65,12 +66,10 @@ class AuthRepoImpl @Inject constructor(val auth:FirebaseAuth,val databaseReferen
         auth.signInWithEmailAndPassword(email, password).addOnSuccessListener {
             callback(MyResult.Success("Successfully Login."))
         }.addOnFailureListener { exception ->
-
             when (exception) {
                 is FirebaseAuthInvalidUserException -> {
                     callback(MyResult.Error("This user does not exit."))
                 }
-
                 is FirebaseAuthInvalidCredentialsException -> {
                     callback(MyResult.Error("Wrong email or password."))
                 }

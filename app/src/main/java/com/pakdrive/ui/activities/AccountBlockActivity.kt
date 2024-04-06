@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.pakdrive.MyConstants
 import com.pakdrive.R
 import com.pakdrive.Utils
+import com.pakdrive.Utils.setUpNavigationColor
 import com.pakdrive.databinding.ActivityAccountBlockBinding
 import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.MessageModel
@@ -33,6 +34,7 @@ class AccountBlockActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding=DataBindingUtil.setContentView(this@AccountBlockActivity,R.layout.activity_account_block)
         Utils.statusBarColor(this@AccountBlockActivity)
+        setUpNavigationColor()
 
         lifecycleScope.launch {
             val user=auth.currentUser

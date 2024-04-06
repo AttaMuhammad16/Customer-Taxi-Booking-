@@ -109,10 +109,6 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
     }
 
 
-
-
-
-
     // maps
 
     override fun findRoutes(Start: LatLng?, End: LatLng?, context: Activity, routingListener: RoutingListener, travelMode: TravelMode) {

@@ -295,6 +295,10 @@ object Utils {
         builder.show()
     }
 
+
+    fun Activity.setUpNavigationColor(color: Int=R.color.widgetscolor){
+        window.navigationBarColor= ContextCompat.getColor(this,color)
+    }
 }
 
 

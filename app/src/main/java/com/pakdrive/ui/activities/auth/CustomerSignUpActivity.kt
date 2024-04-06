@@ -21,6 +21,7 @@ import com.pakdrive.Utils.isValidEmail
 import com.pakdrive.Utils.isValidPakistaniPhoneNumber
 import com.pakdrive.Utils.myToast
 import com.pakdrive.Utils.resultChecker
+import com.pakdrive.Utils.setUpNavigationColor
 import com.pakdrive.databinding.ActivityCustomerSignUpBinding
 import com.pakdrive.models.CustomerModel
 import com.pakdrive.ui.viewmodels.AuthViewModel
@@ -44,6 +45,7 @@ class CustomerSignUpActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding=DataBindingUtil.setContentView(this,R.layout.activity_customer_sign_up)
         Utils.statusBarColor(this,R.color.tool_color)
+        setUpNavigationColor()
 
         binding.loginTv.setOnClickListener {
             startActivity(Intent(this@CustomerSignUpActivity,CustomerLoginActivity::class.java))
@@ -95,8 +97,8 @@ class CustomerSignUpActivity : AppCompatActivity() {
                                 if (uploadResult.await() is MyResult.Success){
                                     Utils.dismissProgressDialog(dialog)
                                     resultChecker(uploadResult.await(),this@CustomerSignUpActivity)
-//                                    startActivity(Intent(this@CustomerSignUpActivity,CustomerLoginActivity::class.java))
-//                                    finish()
+                                    startActivity(Intent(this@CustomerSignUpActivity,CustomerLoginActivity::class.java))
+                                    finish()
                                 }else{
                                     resultChecker(uploadResult.await(),this@CustomerSignUpActivity)
                                     Utils.dismissProgressDialog(dialog)

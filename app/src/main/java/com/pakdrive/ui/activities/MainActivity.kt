@@ -36,6 +36,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polygon
@@ -63,6 +64,7 @@ import com.pakdrive.Utils.generateFCMToken
 import com.pakdrive.Utils.isLocationPermissionGranted
 import com.pakdrive.Utils.myToast
 import com.pakdrive.Utils.requestLocationPermission
+import com.pakdrive.Utils.setUpNavigationColor
 import com.pakdrive.databinding.ActivityMainBinding
 import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
@@ -127,6 +129,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
         dialog=Utils.showProgressDialog(this,"Finding...")
         currentUser=auth.currentUser!!
         Utils.statusBarColor(this,R.color.tool_color)
+        setUpNavigationColor()
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             askNotificationPermission(this,requestPermissionLauncher)
@@ -220,15 +223,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
 
     override fun onMapReady(googleMap: GoogleMap) {
         lifecycleScope.launch {
-            var internetChecker=async { InternetChecker().isInternetConnectedWithPackage(this@MainActivity) }
+            val internetChecker=async { InternetChecker().isInternetConnectedWithPackage(this@MainActivity) }
             if (internetChecker.await()){
                 onGoogleMap = googleMap
-//                googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this@MainActivity, R.raw.map_style))
+                googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this@MainActivity, R.raw.map_style))
 
                 onGoogleMap.uiSettings.apply {
                     isMapToolbarEnabled = false
                     isMyLocationButtonEnabled = true
-                    isRotateGesturesEnabled = false
+                    isRotateGesturesEnabled = true
                     isCompassEnabled = false
                 }
 
@@ -253,7 +256,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
     fun showDriversOnMap(map: GoogleMap,start: LatLng,priceRange: Int,listOfDriver:ArrayList<DriverModel>) {
         try {
             lifecycleScope.launch {
-
 
                 removePreviousMarkers(markersList)
 

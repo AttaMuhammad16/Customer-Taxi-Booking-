@@ -4,7 +4,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="api">AIzaSyAfpjPj2_qCM6dgKxVCGOgh1q_VcukaMBs</string>
 
-
     <string name="content">With the idea of imparting programming
       knowledge, Mr. Sandeep Jain, an IIT Roorkee alumnus started a
       dream, GeeksforGeeks. Whether programming excites you or you feel
@@ -20,4 +19,7 @@
       and landed jobs at tech giants. Our vision is to build a gigantic network of
       geeks and we are only a fraction of it yet.
   </string>
+
+    <string name="firebase_messaging_key">key=AAAA7oDFO3c:APA91bGM6-AyNBT_j5fpZCJkTSu92ymRGkobdlbSpR7jB1AFPUSJoIn3ncinJVDi7h2bnvOe4rkBpC8T1aygPhFq2gM_ZnaCh8-PNtv3on00hq_p6BNxLDP13UisY-Oif47Z7TmT3j77</string>
+
 </resources>

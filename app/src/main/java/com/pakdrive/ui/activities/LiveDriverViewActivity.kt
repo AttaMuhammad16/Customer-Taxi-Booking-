@@ -41,6 +41,7 @@ import com.pakdrive.Utils.dismissProgressDialog
 import com.pakdrive.Utils.getCurrentFormattedDate
 import com.pakdrive.Utils.isLocationPermissionGranted
 import com.pakdrive.Utils.requestLocationPermission
+import com.pakdrive.Utils.setUpNavigationColor
 import com.pakdrive.Utils.showAlertDialog
 import com.pakdrive.Utils.showProgressDialog
 import com.pakdrive.Utils.stringToLatLng
@@ -79,6 +80,7 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         binding=DataBindingUtil.setContentView(this@LiveDriverViewActivity,R.layout.activity_live_driver_view)
         Utils.statusBarColor(this@LiveDriverViewActivity)
+        setUpNavigationColor()
         val myFragment = supportFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
         myFragment.getMapAsync(this)
         list= ArrayList()
@@ -113,7 +115,6 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
                         }
                     }
                 }
-
             }
 
             driverName.observe(this@LiveDriverViewActivity){
@@ -148,7 +149,7 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
 
             lifecycleScope.launch {
                 if (auth.currentUser!=null){
-                    var customer=getUser(MyConstants.CUSTOMER,auth.currentUser!!.uid)
+                    val customer=getUser(MyConstants.CUSTOMER,auth.currentUser!!.uid)
                     if (customer?.startLatLang!="" && customer?.endLatLang!=""){
                         startLatLang= stringToLatLng(customer!!.startLatLang)
                         endLatLang= stringToLatLng(customer.endLatLang)
@@ -165,7 +166,7 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
             showAlertDialog(this@LiveDriverViewActivity,object:DialogeInterface{
                 override fun clickedBol(bol: Boolean) {
                     if (bol&&driverToken.isNotEmpty()){
-                        var dialog=showProgressDialog(this@LiveDriverViewActivity,"Cancelling...")
+                        val dialog=showProgressDialog(this@LiveDriverViewActivity,"Cancelling...")
                         lifecycleScope.launch{
                             var far=""
                             customerViewModel.far.observe(this@LiveDriverViewActivity){far=it}
@@ -181,7 +182,8 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
 
                             SendNotification.sendCancellationNotification("Pak Drive", "Ride cancellation notification.Ride has been canceled by the customer.", driverToken, "false")
                             PreferencesManager(this@LiveDriverViewActivity).deleteValue(DRIVERUID)
-                            dismissProgressDialog(dialog)
+                            dialog.dismiss()
+
                         }
                     }
                 }
@@ -190,13 +192,13 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
-        onGoogleMap=googleMap
-        googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style))
 
+        onGoogleMap=googleMap
+
+        googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style))
         onGoogleMap.uiSettings.apply {
             isMapToolbarEnabled=false
             isMyLocationButtonEnabled = true
-//            isRotateGesturesEnabled=false
             isCompassEnabled=false
             isZoomControlsEnabled=true
         }
@@ -210,16 +212,15 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (it != null) {
                         if (it.availabe){
                             driverToken=it.driverFCMToken
-                            var internetChecker=InternetChecker().isInternetConnectedWithPackage(this@LiveDriverViewActivity)
+                            val internetChecker=InternetChecker().isInternetConnectedWithPackage(this@LiveDriverViewActivity)
                             if (internetChecker){
-                                var driverLocation=Location("").apply {
+                                val driverLocation=Location("").apply {
                                     latitude=it.lat!!
                                     longitude=it.lang!!
                                 }
                                 customerViewModel.setUserLocationMarker(driverLocation,googleMap,this@LiveDriverViewActivity,R.drawable.car,it.bearing,it.carDetails,it.userName)
                                 dismissProgressDialog(dialog)
                             }
-
                         }else{
                             if (!hasElseBlockExecuted){
                                 binding.blankTv.visibility= View.VISIBLE
@@ -253,4 +254,5 @@ class LiveDriverViewActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
+
 }

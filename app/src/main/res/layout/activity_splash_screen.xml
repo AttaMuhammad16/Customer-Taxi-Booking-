@@ -4,16 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ECF1F4"
+    android:background="#162C4B"
     tools:context=".ui.activities.SplashScreen">
 
-    <ImageView
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottieAnimationView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/app_ic"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:lottie_autoPlay="true"
+        app:lottie_rawRes="@raw/splash_animation"
+        app:lottie_loop="true" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

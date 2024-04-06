@@ -17,6 +17,7 @@ import com.pakdrive.MyConstants.APPURL
 import com.pakdrive.MyConstants.REQUESTCODEFORPERMISSION
 import com.pakdrive.R
 import com.pakdrive.Utils
+import com.pakdrive.Utils.setUpNavigationColor
 import com.pakdrive.databinding.ActivityProfileBinding
 import com.pakdrive.ui.viewmodels.CustomerViewModel
 import com.squareup.picasso.Picasso
@@ -37,6 +38,7 @@ class ProfileActivity : AppCompatActivity() {
         binding=DataBindingUtil.setContentView(this@ProfileActivity,R.layout.activity_profile)
         var dialog=Utils.showProgressDialog(this@ProfileActivity,"Loading...")
         Utils.statusBarColor(this@ProfileActivity)
+        setUpNavigationColor()
         binding.backImage.setOnClickListener {
             finish()
         }

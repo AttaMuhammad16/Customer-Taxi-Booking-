@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pakdrive.R
 import com.pakdrive.Utils
+import com.pakdrive.Utils.setUpNavigationColor
 import com.pakdrive.adapters.RideHistoryAdapter
 import com.pakdrive.databinding.ActivityCustomerHistoryBinding
 import com.pakdrive.models.RideHistoryModel
@@ -28,6 +29,7 @@ class CustomerHistoryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding=DataBindingUtil.setContentView(this@CustomerHistoryActivity,R.layout.activity_customer_history)
         Utils.statusBarColor(this@CustomerHistoryActivity)
+        setUpNavigationColor()
 
         var dialog=Utils.showProgressDialog(this@CustomerHistoryActivity,"Loading...")
         lifecycleScope.launch{

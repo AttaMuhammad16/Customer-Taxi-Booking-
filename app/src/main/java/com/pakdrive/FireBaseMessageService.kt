@@ -53,7 +53,6 @@ class FireBaseMessageService : FirebaseMessagingService() {
             }
         }
 
-
     }
 
     override fun onNewToken(token: String) {
