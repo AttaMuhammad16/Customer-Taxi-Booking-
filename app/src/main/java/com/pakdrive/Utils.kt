@@ -156,7 +156,7 @@ object Utils {
 
 
 
-    fun calculatePrice(kilometers: Double,pricePerKilometer:Double): Double {
+    suspend fun calculatePrice(kilometers: Double,pricePerKilometer:Double): Double {
         return kilometers * pricePerKilometer
     }
 

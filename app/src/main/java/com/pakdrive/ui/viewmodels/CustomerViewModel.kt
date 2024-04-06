@@ -109,7 +109,7 @@ class CustomerViewModel @Inject constructor(val customerRepo: CustomerRepo):View
     }
 
     suspend fun calculateDistanceForRoute(start: LatLng, end: LatLng, apiKey: String, travelMode: TravelMode): Double?{
-        return customerRepo.calculateDistanceForRoute(start, end, apiKey, travelMode)
+        return withContext(Dispatchers.IO){customerRepo.calculateDistanceForRoute(start, end, apiKey, travelMode)}
     }
 
 

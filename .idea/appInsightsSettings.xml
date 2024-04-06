@@ -9,9 +9,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.pakdrive" />
-                  <option name="mobileSdkAppId" value="1:857155478341:android:c6f8c1220bf64c6808942c" />
-                  <option name="projectId" value="pak-drive-451a3" />
-                  <option name="projectNumber" value="857155478341" />
+                  <option name="mobileSdkAppId" value="1:1024362625911:android:ae0757d11624f9167f3f72" />
+                  <option name="projectId" value="pak-drive-for-customer" />
+                  <option name="projectNumber" value="1024362625911" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

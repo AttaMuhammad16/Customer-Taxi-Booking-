@@ -6,16 +6,14 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.LocationManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
@@ -35,19 +33,26 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
+import com.google.android.gms.maps.model.Dash
+import com.google.android.gms.maps.model.Gap
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polygon
+import com.google.android.gms.maps.model.PolygonOptions
 import com.google.android.gms.maps.model.Polyline
+import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.libraries.places.api.Places
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.maps.android.SphericalUtil
 import com.google.maps.model.TravelMode
 import com.mindinventory.midrawer.MIDrawerView
 import com.pakdrive.InternetChecker
 import com.pakdrive.MapUtils.clearMapObjects
+import com.pakdrive.MapUtils.drawCurveOnMap
 import com.pakdrive.MapUtils.removePreviousMarkers
 import com.pakdrive.MapUtils.routingSuccess
 import com.pakdrive.MapUtils.updateLocationUI
@@ -80,7 +85,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Arrays
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolylineClickListener, GoogleMap.OnPolygonClickListener, GoogleApiClient.OnConnectionFailedListener, RoutingListener, UserInputDetails {
@@ -269,7 +276,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                     val marker=onGoogleMap.addMarker(markerOptions)
                     markersList.add(marker?:Marker(null))
                     listOfTokens.add(it.driverFCMToken)
-                    Log.i("drivers", "it.lat -> ${it.lat}, it.lang->${it.lang}, position->$position")
                 }
                 val km=radius/1000.0
                 sendNotification(listOfTokens,model,comment?:"",time,distance.toString(),priceRange.toString())
@@ -302,15 +308,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
     override fun onRoutingSuccess(route: ArrayList<Route>?, shortestRouteIndex: Int) {
         onGoogleMap.isTrafficEnabled = true
         if (start != null && end != null) {
-            routingSuccess(route!!, shortestRouteIndex, this, onGoogleMap, st, dt, R.color.yellow)
+            routingSuccess(route!!, shortestRouteIndex, this, onGoogleMap, st, dt, R.color.yellow, startLatLang = start!!, endLatLang = end!!)
             Toast.makeText(this, "Your Shortest Route.", Toast.LENGTH_LONG).show()
 
             onGoogleMap.apply {
                 currentCircle?.remove()
-                currentCircle = addCircle(CircleOptions().center(start!!).radius(radius).strokeColor(Color.BLACK).strokeWidth(5f))
-            }
-
-            onGoogleMap.apply {
+                currentCircle = addCircle(CircleOptions().center(start!!).radius(radius).strokeColor(Color.WHITE).strokeWidth(5f))
                 val cameraUpdate = CameraUpdateFactory.newLatLngZoom(start!!, 12f)
                 animateCamera(cameraUpdate)
             }
@@ -351,13 +354,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                     }
 
                     val distanceDiffered=async(Dispatchers.IO) {
-                        customerViewModel.calculateDistanceForRoute(start,end,apiKey,
-                            TravelMode.DRIVING)?:0.0
+                        customerViewModel.calculateDistanceForRoute(start,end,apiKey, TravelMode.DRIVING)?:0.0
                     }
+
                     time=timeDiffered.await()
                     distance=distanceDiffered.await()
 
-                    var listOfDrivers=async {customerViewModel.getDriversInRadius(start,radius)  }.await()
+                    val listOfDrivers=async {customerViewModel.getDriversInRadius(start,radius)  }.await()
 
                     if (listOfDrivers.isEmpty()){
                         myToast(this@MainActivity,"Did not find any drivers. Please consider changing your location.",Toast.LENGTH_LONG)
@@ -366,12 +369,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
 
                         GlobalScope.launch(Dispatchers.IO) {
                             // request model.
-                            var model=RequestModel(customerUid = currentUser!!.uid, far = priceRange.toString(),pickUpLatLang=start.toString(),destinationLatLang=end.toString(),comment=comment, timeTaken = time, distance = distance.toString())
+                            val model=RequestModel(customerUid = currentUser!!.uid, far = priceRange.toString(),pickUpLatLang=start.toString(),destinationLatLang=end.toString(),comment=comment, timeTaken = time, distance = distance.toString())
                             listOfDrivers.forEach {
                                 customerViewModel.uploadRequestModel(model,it.uid!!)
                             }
                             customerViewModel.updateCustomerDetails(start.toString(),end.toString(),st,dt)
                         }
+
+                        drawCurveOnMap(this@MainActivity,onGoogleMap,start,end) // draw line curve on route
                     }
                 }
 
@@ -402,6 +407,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
             }
         }
     }
+
+
+
+
+
 
 
 }

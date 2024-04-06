@@ -48,10 +48,14 @@ import com.pakdrive.models.MessageModel
 import com.pakdrive.models.OfferModel
 import com.pakdrive.models.RequestModel
 import com.pakdrive.models.RideHistoryModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.invoke
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -173,27 +177,30 @@ class CustomerRepoImpl @Inject constructor(val auth:FirebaseAuth,val storageRefe
     }
 
     override suspend fun driversInRadius(startLatLang: LatLng, radius: Double): ArrayList<DriverModel> {
-        return suspendCoroutine { continuation ->
-            databaseReference.child(DRIVER).addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    val driverModels = ArrayList<DriverModel>()
-                    dataSnapshot.children.forEach { childSnapshot ->
-                        val driverModel = childSnapshot.getValue(DriverModel::class.java)
-                        if (driverModel != null && !driverModel.availabe) {
-                            val driverLatLng = LatLng(driverModel.lat?:0.0, driverModel.lang?:0.0)
-                            val distance = calculateDistance(startLatLang, driverLatLng)
-                            if (distance <= radius) {
-                                driverModels.add(driverModel)
+        return withContext(Dispatchers.IO){
+             suspendCoroutine { continuation ->
+                databaseReference.child(DRIVER).addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        val driverModels = ArrayList<DriverModel>()
+                        dataSnapshot.children.forEach { childSnapshot ->
+                            val driverModel = childSnapshot.getValue(DriverModel::class.java)
+                            if (driverModel != null && !driverModel.availabe) {
+                                val driverLatLng = LatLng(driverModel.lat?:0.0, driverModel.lang?:0.0)
+                                val distance = calculateDistance(startLatLang, driverLatLng)
+                                if (distance <= radius) {
+                                    driverModels.add(driverModel)
+                                }
                             }
                         }
+                        continuation.resume(driverModels)
                     }
-                    continuation.resume(driverModels)
-                }
-                override fun onCancelled(databaseError: DatabaseError) {
-                    continuation.resume(ArrayList())
-                }
-            })
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        continuation.resume(ArrayList())
+                    }
+                })
+            }
         }
+
     }
 
     override suspend fun uploadRequestModel(requestModel: RequestModel,driverUid:String) {

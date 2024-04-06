@@ -110,7 +110,7 @@ class CustomerBottomSheet : BottomSheetDialogFragment() {
         commentCross = view.findViewById(R.id.commentCross)
         commentEdt = view.findViewById(R.id.commentEdt)
         pd = view.findViewById(R.id.pd)
-        var currentLocationImg = view.findViewById<ImageView>(R.id.currentLocationImg)
+        val currentLocationImg = view.findViewById<ImageView>(R.id.currentLocationImg)
 
         if (auth.currentUser!=null){
             databaseReference.child("pricePerKM").addValueEventListener(object:ValueEventListener{
@@ -266,13 +266,11 @@ class CustomerBottomSheet : BottomSheetDialogFragment() {
                 }else{
                     lifecycleScope.launch {
                         pd.visibility=View.VISIBLE
-                        var dialog=Utils.showProgressDialog(requireContext(),"wait...")
-                        var distanceDiffered= async { customerViewModel.calculateDistanceForRoute(start!!,end!!, apiKey,TravelMode.DRIVING)?:0.0 }
-                        var distanceInKM=distanceDiffered.await()
-                        var price=calculatePrice(distanceInKM,pricePerKm).toInt()
+                        val distanceDiffered= async { customerViewModel.calculateDistanceForRoute(start!!,end!!, apiKey,TravelMode.DRIVING)?:0.0 }
+                        val distanceInKM=distanceDiffered.await()
+                        val price=calculatePrice(distanceInKM,pricePerKm).toInt()
                         priceRageEdt.setText("")
                         priceRageEdt.setText("$price")
-                        Utils.dismissProgressDialog(dialog)
                         pd.visibility=View.GONE
                     }
                 }
