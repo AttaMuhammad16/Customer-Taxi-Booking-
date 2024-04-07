@@ -68,41 +68,43 @@ object MapUtils {
 
         clearMapObjects()
 
-        val polyOptions = PolylineOptions()
-        var polylineStartLatLng: LatLng? = null
-        var polylineEndLatLng: LatLng? = null
-
-        for (i in route.indices) {
-            if (i == shortestRouteIndex) {
-                polyOptions.color(context.resources.getColor(color))
-                polyOptions.width(7f)
-                polyOptions.addAll(route[shortestRouteIndex].points)
-
-                val polyline = onGoogleMap.addPolyline(polyOptions)
-                polylineStartLatLng = polyline.points[0]
-                val k = polyline.points.size
-                polylineEndLatLng = polyline.points[k - 1]
-                polylines.add(polyline)
-            }
-        }
-        if (startMarkerBol){
-            val startMarker = MarkerOptions()
-            startMarker.position(polylineStartLatLng!!)
-            startMarker.title(st)
-            val startMarkerObject = onGoogleMap.addMarker(startMarker)
-            markers.add(startMarkerObject!!)
-        }
-
-        val endMarker = MarkerOptions()
-        endMarker.position(polylineEndLatLng!!)
-        endMarker.title(dt)
-        val endMarkerObject = onGoogleMap.addMarker(endMarker)
-        markers.add(endMarkerObject!!)
+//        val polyOptions = PolylineOptions()
+//        var polylineStartLatLng: LatLng? = null
+//        var polylineEndLatLng: LatLng? = null
+//
+//        for (i in route.indices) {
+//            if (i == shortestRouteIndex) {
+//                polyOptions.color(context.resources.getColor(color))
+//                polyOptions.width(7f)
+//                polyOptions.addAll(route[shortestRouteIndex].points)
+//
+//                val polyline = onGoogleMap.addPolyline(polyOptions)
+//                polylineStartLatLng = polyline.points[0]
+//                val k = polyline.points.size
+//                polylineEndLatLng = polyline.points[k - 1]
+//                polylines.add(polyline)
+//            }
+//        }
+//
+//        if (startMarkerBol){
+//            val startMarker = MarkerOptions()
+//            startMarker.position(polylineStartLatLng!!)
+//            startMarker.title(st)
+//            val startMarkerObject = onGoogleMap.addMarker(startMarker)
+//            markers.add(startMarkerObject!!)
+//        }
+//
+//        val endMarker = MarkerOptions()
+//        endMarker.position(polylineEndLatLng!!)
+//        endMarker.title(dt)
+//        val endMarkerObject = onGoogleMap.addMarker(endMarker)
+//        markers.add(endMarkerObject!!)
 
     }
 
 
     fun clearMapObjects() {
+        clearPreviousCurve()
         for (polyline in polylines) {
             polyline.remove()
         }
@@ -122,7 +124,6 @@ object MapUtils {
             marker.remove()
         }
         markersList.clear()
-        clearCurves()
     }
 
 
@@ -209,7 +210,6 @@ object MapUtils {
             p = SphericalUtil.computeOffset(latLng2, d * 0.5, h)
         } else {
             d = SphericalUtil.computeDistanceBetween(latLng1, latLng2)
-
             //Midpoint position
             p = SphericalUtil.computeOffset(latLng1, d * 0.5, h)
         }
@@ -252,9 +252,20 @@ object MapUtils {
         val drewPolygon=googleMap.addPolygon(polygon)
         curvePolygons.add(drewPolygon)
         temp.clear()
+
+        val startMarker = MarkerOptions()
+        startMarker.position(latLng1)
+        val startMarkerObject = googleMap.addMarker(startMarker)
+        markers.add(startMarkerObject!!)
+
+        val endMarker = MarkerOptions()
+        endMarker.position(latLng2)
+        val endMarkerObject = googleMap.addMarker(endMarker)
+        markers.add(endMarkerObject!!)
+
     }
 
-    fun clearCurves() {
+    fun clearPreviousCurve() {
         for (polygon in curvePolygons) {
             polygon.remove()
         }

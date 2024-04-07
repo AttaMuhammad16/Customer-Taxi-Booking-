@@ -82,8 +82,10 @@
                 android:layout_height="0dp"
                 app:layout_constraintBottom_toTopOf="@+id/sheetShow"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
@@ -95,6 +97,53 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/mapFragment" />
 
+            <Button
+                android:id="@+id/distanceBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_5sdp"
+                android:backgroundTint="@color/widgetscolor"
+                android:text="Distance: 20Km"
+                android:textColor="@color/white"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toTopOf="@+id/clearRouteBtn"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/timeBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_5sdp"
+                android:backgroundTint="@color/widgetscolor"
+                android:visibility="invisible"
+                android:text="Time: 20Km"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toTopOf="@+id/distanceBtn"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/destinationBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_5sdp"
+                android:backgroundTint="@color/widgetscolor"
+                android:text="Destination: Kasur"
+                android:visibility="invisible"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toTopOf="@+id/timeBtn"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/startingPointBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_5sdp"
+                android:backgroundTint="@color/widgetscolor"
+                android:text="Starting Point: Noul Hithar"
+                android:visibility="invisible"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toTopOf="@+id/destinationBtn"
+                app:layout_constraintEnd_toEndOf="parent" />
             <Button
                 android:id="@+id/clearRouteBtn"
                 android:layout_width="wrap_content"

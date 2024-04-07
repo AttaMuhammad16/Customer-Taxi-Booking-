@@ -31,6 +31,7 @@
             android:gravity="center|center_vertical"
             android:text="You haven't booked any ride."
             android:textColor="@color/white"
+            android:visibility="gone"
             android:textSize="@dimen/_18sdp"
             app:layout_constraintBottom_toBottomOf="@+id/constraintLayout"
             app:layout_constraintEnd_toEndOf="parent"

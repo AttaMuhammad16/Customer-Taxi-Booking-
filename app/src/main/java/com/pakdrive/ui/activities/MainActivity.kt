@@ -1,5 +1,6 @@
 package com.pakdrive.ui.activities
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -213,6 +214,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
         }
 
         binding.clearRouteBtn.setOnClickListener {
+            binding.timeBtn.visibility=View.INVISIBLE
+            binding.distanceBtn.visibility=View.INVISIBLE
+            binding.destinationBtn.visibility=View.INVISIBLE
+            binding.startingPointBtn.visibility=View.INVISIBLE
             if (::onGoogleMap.isInitialized){
                 clearMapObjects()
                 removePreviousMarkers(markersList)
@@ -241,6 +246,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                     isRotateGesturesEnabled = true
                     isCompassEnabled = false
                 }
+                onGoogleMap.isTrafficEnabled = true
 
                 lifecycleScope.launch {
                     if (isLocationPermissionGranted(this@MainActivity)&&locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)&&InternetChecker().isInternetConnectedWithPackage(this@MainActivity)&&::fusedLocationClient.isInitialized) {
@@ -264,8 +270,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
         try {
             lifecycleScope.launch {
 
-                removePreviousMarkers(markersList)
-
                 listOfTokens.clear()
 
                 listOfDriver.forEach { it ->
@@ -277,9 +281,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                     markersList.add(marker?:Marker(null))
                     listOfTokens.add(it.driverFCMToken)
                 }
+
                 val km=radius/1000.0
                 sendNotification(listOfTokens,model,comment?:"",time,distance.toString(),priceRange.toString())
-                Toast.makeText(this@MainActivity, "Rides in $km KM Radius", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@MainActivity, "Rides in $km km Radius", Toast.LENGTH_LONG).show()
                 delay(4000)
                 startActivity(Intent(this@MainActivity,DriversOfferActivity::class.java))
 
@@ -306,7 +311,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
     }
 
     override fun onRoutingSuccess(route: ArrayList<Route>?, shortestRouteIndex: Int) {
-        onGoogleMap.isTrafficEnabled = true
+        clearMapObjects()
+        removePreviousMarkers(markersList)
         if (start != null && end != null) {
             routingSuccess(route!!, shortestRouteIndex, this, onGoogleMap, st, dt, R.color.yellow, startLatLang = start!!, endLatLang = end!!)
             Toast.makeText(this, "Your Shortest Route.", Toast.LENGTH_LONG).show()
@@ -317,7 +323,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                 val cameraUpdate = CameraUpdateFactory.newLatLngZoom(start!!, 12f)
                 animateCamera(cameraUpdate)
             }
-
+            drawCurveOnMap(this@MainActivity,onGoogleMap,start!!,end!!) // draw line curve on route
 
         } else {
             Toast.makeText(this, "Enter Starting and Ending Point.", Toast.LENGTH_SHORT).show()
@@ -325,13 +331,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
     }
 
     override fun onRoutingCancelled() {
-        customerViewModel.findingRoute(start, end, this, this, TravelMode.DRIVING)
+//        customerViewModel.findingRoute(start, end, this, this, TravelMode.DRIVING)
+        Toast.makeText(this@MainActivity, "Routing failed try again or change location", Toast.LENGTH_SHORT).show()
     }
 
     override fun onRoutingFailure(p0: RouteException?) {
-        customerViewModel.findingRoute(start, end, this, this, TravelMode.DRIVING)
+//        customerViewModel.findingRoute(start, end, this, this, TravelMode.DRIVING)
+        Toast.makeText(this@MainActivity, "Routing failed try again or change location", Toast.LENGTH_SHORT).show()
     }
 
+    @SuppressLint("SetTextI18n")
     @OptIn(DelicateCoroutinesApi::class)
     override fun userInputDetails(start: LatLng, end: LatLng, st: String, dt: String, priceRange:Int, comment: String) {
         this.start = start
@@ -360,23 +369,36 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
                     time=timeDiffered.await()
                     distance=distanceDiffered.await()
 
+                    if (time.isNotEmpty()&&distance.toString().isNotEmpty()&&st.isNotEmpty()&&dt.isNotEmpty()){
+
+                        binding.timeBtn.visibility=View.VISIBLE
+                        binding.distanceBtn.visibility=View.VISIBLE
+                        binding.timeBtn.text=time
+                        binding.distanceBtn.text="$distance km"
+
+
+                        binding.destinationBtn.visibility=View.VISIBLE
+                        binding.startingPointBtn.visibility=View.VISIBLE
+                        binding.startingPointBtn.text="Staring Point: $st"
+                        binding.destinationBtn.text="Destination: $dt"
+
+                    }
+
                     val listOfDrivers=async {customerViewModel.getDriversInRadius(start,radius)  }.await()
 
                     if (listOfDrivers.isEmpty()){
                         myToast(this@MainActivity,"Did not find any drivers. Please consider changing your location.",Toast.LENGTH_LONG)
                     }else{
-                        showDriversOnMap(onGoogleMap, start, priceRange, listOfDrivers)
 
+                        showDriversOnMap(onGoogleMap, start, priceRange, listOfDrivers)
                         GlobalScope.launch(Dispatchers.IO) {
-                            // request model.
-                            val model=RequestModel(customerUid = currentUser!!.uid, far = priceRange.toString(),pickUpLatLang=start.toString(),destinationLatLang=end.toString(),comment=comment, timeTaken = time, distance = distance.toString())
+                            val model=RequestModel(customerUid = currentUser.uid, far = priceRange.toString(),pickUpLatLang=start.toString(),destinationLatLang=end.toString(),comment=comment, timeTaken = time, distance = distance.toString())
                             listOfDrivers.forEach {
                                 customerViewModel.uploadRequestModel(model,it.uid!!)
                             }
                             customerViewModel.updateCustomerDetails(start.toString(),end.toString(),st,dt)
                         }
 
-                        drawCurveOnMap(this@MainActivity,onGoogleMap,start,end) // draw line curve on route
                     }
                 }
 
@@ -407,9 +429,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
             }
         }
     }
-
-
-
 
 
 
