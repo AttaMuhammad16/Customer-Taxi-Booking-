@@ -10,6 +10,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.DragEvent
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -71,6 +72,7 @@ import com.pakdrive.Utils.isLocationPermissionGranted
 import com.pakdrive.Utils.myToast
 import com.pakdrive.Utils.requestLocationPermission
 import com.pakdrive.Utils.setUpNavigationColor
+import com.pakdrive.Utils.shareAppLink
 import com.pakdrive.databinding.ActivityMainBinding
 import com.pakdrive.models.CustomerModel
 import com.pakdrive.models.DriverModel
@@ -165,6 +167,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
             bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
         }
 
+        binding.sheetShow.setOnDragListener { v, event ->
+            if (event.action == DragEvent.ACTION_DRAG_STARTED) {
+                bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
+                true // Return true to indicate that the listener has consumed the event
+            } else {
+                false // Return false for other drag events
+            }
+        }
+
         lifecycleScope.launch {
             val customerDiffered=async { customerViewModel.getUser(CUSTOMER,currentUser.uid) }
             model= customerDiffered.await()!!
@@ -211,6 +222,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
 
         binding.rideHistoryLinear.setOnClickListener{
             startActivity(Intent(this@MainActivity,CustomerHistoryActivity::class.java))
+        }
+        binding.shareAppLinear.setOnClickListener {
+            shareAppLink(this@MainActivity)
         }
 
         binding.clearRouteBtn.setOnClickListener {

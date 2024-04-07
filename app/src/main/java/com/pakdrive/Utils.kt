@@ -299,6 +299,17 @@ object Utils {
     fun Activity.setUpNavigationColor(color: Int=R.color.widgetscolor){
         window.navigationBarColor= ContextCompat.getColor(this,color)
     }
+
+
+    fun shareAppLink(context: Context){
+        val appPackageName = "com.pakdrive"
+        val playStoreLink = "Pak Drive From Quantum App Works \nhttps://play.google.com/store/apps/details?id=$appPackageName"
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "text/plain"
+        intent.putExtra(Intent.EXTRA_TEXT, playStoreLink)
+        context.startActivity(Intent.createChooser(intent, "Share via"))
+    }
+
 }
 
 

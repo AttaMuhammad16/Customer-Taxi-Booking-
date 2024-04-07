@@ -323,6 +323,31 @@
                         android:paddingStart="16dp" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/shareAppLinear"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:layout_marginEnd="@dimen/_10sdp"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/baseline_share_24"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Share"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_15sdp"
+                        android:paddingStart="16dp" />
+                </LinearLayout>
+
             </LinearLayout>
 
         </com.google.android.material.navigation.NavigationView>
