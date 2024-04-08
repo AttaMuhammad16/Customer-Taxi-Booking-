@@ -301,12 +301,10 @@ object Utils {
     }
 
 
-    fun shareAppLink(context: Context){
-        val appPackageName = "com.pakdrive"
-        val playStoreLink = "Pak Drive From Quantum App Works \nhttps://play.google.com/store/apps/details?id=$appPackageName"
+    fun shareAppLink(context: Context,str: String){
         val intent = Intent(Intent.ACTION_SEND)
         intent.type = "text/plain"
-        intent.putExtra(Intent.EXTRA_TEXT, playStoreLink)
+        intent.putExtra(Intent.EXTRA_TEXT, str)
         context.startActivity(Intent.createChooser(intent, "Share via"))
     }
 

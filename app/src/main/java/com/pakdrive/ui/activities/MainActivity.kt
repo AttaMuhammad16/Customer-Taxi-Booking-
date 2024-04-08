@@ -224,7 +224,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnPolyli
             startActivity(Intent(this@MainActivity,CustomerHistoryActivity::class.java))
         }
         binding.shareAppLinear.setOnClickListener {
-            shareAppLink(this@MainActivity)
+            shareAppLink(this@MainActivity,"Pak Drive(Customer) From Quantum App Works \nhttps://play.google.com/store/apps/details?id=com.pakdrive")
+        }
+        binding.drivershareAppLinear.setOnClickListener {
+            shareAppLink(this@MainActivity,"Pak Drive(Driver) From Quantum App Works \nhttps://play.google.com/store/apps/details?id=com.pakdrivefordriver")
         }
 
         binding.clearRouteBtn.setOnClickListener {
