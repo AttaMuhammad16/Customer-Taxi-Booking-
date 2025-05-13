@@ -53,7 +53,11 @@ class DriversOfferAdapter(private val requestList: ArrayList<DriverModel>, var c
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: RequestViewHolder, position: Int) {
         val data = requestList[position]
-        Picasso.get().load(data.profileImageUrl).placeholder(R.drawable.person_with_out_circle).error(R.drawable.person_with_out_circle).into(holder.profileImage);
+        val profileUrl=data.profileImageUrl
+
+        if (profileUrl.isNotEmpty()){
+            Picasso.get().load(profileUrl).placeholder(R.drawable.person_with_out_circle).error(R.drawable.person_with_out_circle).into(holder.profileImage);
+        }
 
         holder.driverName.text=data.userName
         holder.vehicleName.text=data.carDetails

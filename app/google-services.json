@@ -1,26 +1,98 @@
 {
   "project_info": {
-    "project_number": "1024362625911",
-    "project_id": "pak-drive-for-customer",
-    "storage_bucket": "pak-drive-for-customer.appspot.com"
+    "project_number": "1027461999923",
+    "firebase_url": "https://pak-drive-taxi-app-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "pak-drive-taxi-app",
+    "storage_bucket": "pak-drive-taxi-app.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1024362625911:android:ae0757d11624f9167f3f72",
+        "mobilesdk_app_id": "1:1027461999923:android:b57efb47b018dd43e7a246",
         "android_client_info": {
           "package_name": "com.pakdrive"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1027461999923-dc55irs4bj7r5chk43c2hij6p1atpl88.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pakdrive",
+            "certificate_hash": "b0393680504f29b6a4a6d91a5efd1a672aa89173"
+          }
+        },
+        {
+          "client_id": "1027461999923-o85am9npidhpdf4ko2usgd5gj4mvole9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pakdrive",
+            "certificate_hash": "34f27821586610fe9a99bca1f1ca93d20b6c135d"
+          }
+        },
+        {
+          "client_id": "1027461999923-ljcovbg0m7jcid2ih3p2l04p884k1t44.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyDMV3H08Ht6lBcVAb6sbGQOVITOMNcUtV0"
+          "current_key": "AIzaSyA0TkQwNsuqyzfFQV06fB67tf2ts9h4kPE"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1027461999923-ljcovbg0m7jcid2ih3p2l04p884k1t44.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1027461999923:android:d91a15336b5ddcf5e7a246",
+        "android_client_info": {
+          "package_name": "com.pakdrivefordriver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1027461999923-ft42sd203eo8df2o859j9j2jffahu48b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pakdrivefordriver",
+            "certificate_hash": "34f27821586610fe9a99bca1f1ca93d20b6c135d"
+          }
+        },
+        {
+          "client_id": "1027461999923-harh7rcetou922glv34gqqv50um3vs8c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pakdrivefordriver",
+            "certificate_hash": "ad9f6d6563cf5e192e7756b8dc9ed7f645502080"
+          }
+        },
+        {
+          "client_id": "1027461999923-ljcovbg0m7jcid2ih3p2l04p884k1t44.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0TkQwNsuqyzfFQV06fB67tf2ts9h4kPE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1027461999923-ljcovbg0m7jcid2ih3p2l04p884k1t44.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

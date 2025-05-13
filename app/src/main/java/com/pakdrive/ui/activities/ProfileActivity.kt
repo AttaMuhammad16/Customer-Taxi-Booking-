@@ -46,7 +46,11 @@ class ProfileActivity : AppCompatActivity() {
             if (auth.currentUser!=null) {
 
                 val customerDetails=customerViewModel.getUser(MyConstants.CUSTOMER, auth.uid!!)?.apply {
-                    Picasso.get().load(profileImage).placeholder(R.drawable.user).into(binding.userImage)
+
+                    if(profileImage.isNotEmpty()) {
+                        Picasso.get().load(profileImage).placeholder(R.drawable.user).into(binding.userImage)
+                    }
+
                     binding.frontNameTv.text = userName
                     binding.nameTv.text = userName
                     binding.phoneNumberTv.text = phoneNumber

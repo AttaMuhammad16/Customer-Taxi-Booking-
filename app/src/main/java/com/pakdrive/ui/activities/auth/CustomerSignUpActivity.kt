@@ -78,35 +78,54 @@ class CustomerSignUpActivity : AppCompatActivity() {
                 Utils.invalidInputsMessage(this, binding.addressEdt, "address length must be at least 6", dialog)
             } else if (!isValidEmail(email)){
                 Utils.invalidInputsMessage(this, binding.emailEdt, "Enter correct E-mail", dialog)
-            }else if (!::bitmap.isInitialized){
-                myToast(this,"Select User Image", Toast.LENGTH_LONG)
-                Utils.dismissProgressDialog(dialog)
-            }else if (password.length<=6){
+            }
+//            else if (!::bitmap.isInitialized){
+//                myToast(this,"Select User Image", Toast.LENGTH_LONG)
+//                Utils.dismissProgressDialog(dialog)
+//            }
+            else if (password.length<=6){
                 Utils.invalidInputsMessage(this, binding.passwordEdt, "Password length must be 6", dialog)
             }else{
                 authViewModel.registerUser(email,password){authResult->
+
                     if (authResult is MyResult.Error){
                         resultChecker(authResult,this)
                     }else if (authResult is MyResult.Success){
                         lifecycleScope.launch {
-                            val resultJob= async { customerViewModel.uploadImageToStorage(bitmap) }
-                            val imageUrl=resultJob.await()
-                            if (imageUrl is MyResult.Success){
-                                val model= CustomerModel(null,userName, email, password, phoneNumber, address,imageUrl.success,"","","","","",false)
-                                val uploadResult=async { customerViewModel.uploadUserOnDatabase(model) }
-                                if (uploadResult.await() is MyResult.Success){
-                                    Utils.dismissProgressDialog(dialog)
-                                    resultChecker(uploadResult.await(),this@CustomerSignUpActivity)
-                                    startActivity(Intent(this@CustomerSignUpActivity,CustomerLoginActivity::class.java))
-                                    finish()
-                                }else{
-                                    resultChecker(uploadResult.await(),this@CustomerSignUpActivity)
-                                    Utils.dismissProgressDialog(dialog)
-                                }
+
+                            val model= CustomerModel(null,userName, email, password, phoneNumber, address,"","","","","","",false)
+                            val uploadResult=async { customerViewModel.uploadUserOnDatabase(model) }
+                            if (uploadResult.await() is MyResult.Success){
+                                Utils.dismissProgressDialog(dialog)
+                                resultChecker(uploadResult.await(),this@CustomerSignUpActivity)
+                                startActivity(Intent(this@CustomerSignUpActivity,CustomerLoginActivity::class.java))
+                                finish()
                             }else{
-                                resultChecker(resultJob.await(),this@CustomerSignUpActivity)
+                                resultChecker(uploadResult.await(),this@CustomerSignUpActivity)
                                 Utils.dismissProgressDialog(dialog)
                             }
+
+
+//                            temporarily of due to firebase storage issue.
+
+//                            val resultJob= async { customerViewModel.uploadImageToStorage(bitmap) }
+//                            val imageUrl=resultJob.await()
+//                            if (imageUrl is MyResult.Success){
+//                                val model= CustomerModel(null,userName, email, password, phoneNumber, address,imageUrl.success,"","","","","",false)
+//                                val uploadResult=async { customerViewModel.uploadUserOnDatabase(model) }
+//                                if (uploadResult.await() is MyResult.Success){
+//                                    Utils.dismissProgressDialog(dialog)
+//                                    resultChecker(uploadResult.await(),this@CustomerSignUpActivity)
+//                                    startActivity(Intent(this@CustomerSignUpActivity,CustomerLoginActivity::class.java))
+//                                    finish()
+//                                }else{
+//                                    resultChecker(uploadResult.await(),this@CustomerSignUpActivity)
+//                                    Utils.dismissProgressDialog(dialog)
+//                                }
+//                            }else{
+//                                resultChecker(resultJob.await(),this@CustomerSignUpActivity)
+//                                Utils.dismissProgressDialog(dialog)
+//                            }
                         }
                     }
                 }
